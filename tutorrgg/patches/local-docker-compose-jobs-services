@@ -1,0 +1,17 @@
+rgg-job:
+  image: docker.io/rgg:latest
+  environment:
+    - DB_ENGINE=django.db.backends.mysql
+    - DB_NAME=rgg
+    - DB_USER=rgg
+    - DB_PASSWORD={{ RGG_MYSQL_PASSWORD }}
+    - DB_HOST=mysql
+    - DB_PORT=3306
+    - MONGO_URL=mongodb://mongodb:27017/
+    - MONGO_DATABASE=gamma_data
+    - EDX_LMS_BASE_URL=http://{{ LMS_HOST }}
+    - EDX_API_KEY={{ EDX_API_KEY }}
+  depends_on:
+    - lms
+    - mongodb
+    {% if RUN_MYSQL %}- mysql{% endif %}

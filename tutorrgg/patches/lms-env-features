@@ -1,0 +1,8 @@
+RG_GAMIFICATION:
+  ENABLED: true
+  RG_GAMIFICATION_ENDPOINT: "http://rgg"
+  KEY: "{{ RGG_DEFAULT_APP_KEY }}"
+  SECRET: "{{ RGG_DEFAULT_APP_SECRET }}"
+  IGNORED_EVENT_TYPES:
+    - completion.submited
+    - completion.submited.daily

@@ -1,0 +1,10 @@
+python manage.py migrate
+
+python manage.py \
+      shell -c "from django.contrib.auth.models import User; \
+      User.objects.filter(username='{{ RGG_DJANGO_ADMIN_USER }}').exists() or \
+      User.objects.create_superuser('{{ RGG_DJANGO_ADMIN_USER }}', '{{ RGG_DJANGO_ADMIN_EMAIL }}', '{{ RGG_DJANGO_ADMIN_PASS }}')"
+
+python manage.py \
+      shell -c "from core.models import AppClient; \
+      AppClient.objects.get_or_create(name='main', key='{{ RGG_DEFAULT_APP_KEY }}', secret='{{ RGG_DEFAULT_APP_SECRET }}')"
