@@ -13,7 +13,9 @@ rgg:
     - EDX_LMS_BASE_URL=http://lms
     - EDX_API_KEY={{ EDX_API_KEY }}
     - CELERY_BROKER_URL=redis://redis:6379/2
+    - DJANGO_SETTINGS_MODULE=gamma.settings.tutor.production
   volumes:
+    - ../plugins/rgg/apps/rgg/settings:/rgg/gamma/gamma/settings/tutor:ro
     - ../../data/rgg:/rgg/gamma/gamma/media/media:rw
   restart: unless-stopped
   depends_on:

@@ -1,0 +1,8 @@
+mc config host add minio http://minio:9000 {{ OPENEDX_AWS_ACCESS_KEY }} {{ OPENEDX_AWS_SECRET_ACCESS_KEY }} --api s3v4
+mc mb --ignore-existing minio/{{ RGG_AWS_STORAGE_BUCKET_NAME }}
+{% if MINIO_GATEWAY != "azure" %}
+# Make discovery media upload bucket public
+mc policy set public minio/{{ RGG_AWS_STORAGE_BUCKET_NAME }}
+{% else %}
+echo "⚠️  It is your responsibility to grant public read access rights to the '{{ RGG_AWS_STORAGE_BUCKET_NAME }}' bucket on Azure."
+{% endif %}

@@ -9,6 +9,14 @@ from tutor import hooks
 
 from .__about__ import __version__
 
+
+def is_plugin_loaded(plugin_name: str) -> bool:
+    """
+    Check if the provided plugin is loaded.
+    """
+
+    return plugin_name in hooks.Filters.PLUGINS_LOADED.iterate()
+
 ########################################
 # CONFIGURATION
 ########################################
@@ -23,7 +31,16 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_MYSQL_DATABASE", "rgg"),
         ("RGG_DJANGO_ADMIN_USER", "admin"),
         ("RGG_DJANGO_ADMIN_EMAIL", "admin@mail.com"),
+        ("RGG_AWS_STORAGE_BUCKET_NAME", "gamma"), # TODO: add init for bucket creation
+        ("RGG_AWS_S3_ENDPOINT_URL", "http://files.{{ LMS_HOST }}"),
+        ("RGG_AWS_S3_REGION_NAME", ""),
     ]
+)
+
+hooks.Filters.ENV_TEMPLATE_VARIABLES.add_items(
+    [
+        ("IS_MINIO_ENABLED", is_plugin_loaded("minio")),
+    ],
 )
 
 hooks.Filters.CONFIG_UNIQUE.add_items(
@@ -69,6 +86,11 @@ MY_INIT_TASKS: list[tuple[str, tuple[str, ...]]] = [
     ("rgg", ("rgg", "tasks", "mysql", "init")),
     ("rgg", ("rgg", "tasks", "rgg", "init")),
 ]
+
+if is_plugin_loaded("minio"):
+    MY_INIT_TASKS.append(
+        ("minio", ("rgg", "tasks", "minio", "init")),
+    )
 
 
 # For each task added to MY_INIT_TASKS, we load the task template
