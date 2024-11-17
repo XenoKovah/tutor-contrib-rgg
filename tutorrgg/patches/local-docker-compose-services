@@ -1,21 +1,12 @@
 # RG Gamification
 rgg:
-  image: docker.io/rgg:latest
+  image: {{ RGG_DOCKER_IMAGE }}
   environment:
-    - DB_ENGINE=django.db.backends.mysql
-    - DB_NAME=rgg
-    - DB_USER=rgg
-    - DB_PASSWORD={{ RGG_MYSQL_PASSWORD }}
-    - DB_HOST=mysql
-    - DB_PORT=3306
-    - MONGO_URL=mongodb://mongodb:27017/
-    - MONGO_DATABASE=gamma_data
-    - EDX_LMS_BASE_URL=http://lms
-    - EDX_API_KEY={{ EDX_API_KEY }}
-    - CELERY_BROKER_URL=redis://redis:6379/2
-    - DJANGO_SETTINGS_MODULE=gamma.settings.tutor.production
+    DJANGO_SETTINGS_MODULE: gamma.settings.tutor.production
+    MONGO_URL: mongodb://mongodb:27017/
+    MONGO_DATABASE: gamma_data
   volumes:
-    - ../plugins/rgg/apps/rgg/settings:/rgg/gamma/gamma/settings/tutor:ro
+    - ../plugins/rgg/apps/settings/tutor:/rgg/gamma/gamma/settings/tutor:ro
     - ../../data/rgg:/rgg/gamma/gamma/media/media:rw
   restart: unless-stopped
   depends_on:
@@ -26,20 +17,14 @@ rgg:
 
 # RG Gamification Worker
 rgg-worker:
-  image: docker.io/rgg:latest
+  image: {{ RGG_DOCKER_IMAGE }}
   command: celery -A gamma worker -l info
   environment:
-    - DB_ENGINE=django.db.backends.mysql
-    - DB_NAME=rgg
-    - DB_USER=rgg
-    - DB_PASSWORD={{ RGG_MYSQL_PASSWORD }}
-    - DB_HOST=mysql
-    - DB_PORT=3306
-    - MONGO_URL=mongodb://mongodb:27017/
-    - MONGO_DATABASE=gamma_data
-    - EDX_LMS_BASE_URL=http://lms
-    - EDX_API_KEY={{ EDX_API_KEY }}
-    - CELERY_BROKER_URL=redis://redis:6379/2
+    DJANGO_SETTINGS_MODULE: gamma.settings.tutor.production
+    MONGO_URL: mongodb://mongodb:27017/
+    MONGO_DATABASE: gamma_data
+  volumes:
+    - ../plugins/rgg/apps/settings/tutor:/rgg/gamma/gamma/settings/tutor:ro
   restart: unless-stopped
   depends_on: 
     - lms

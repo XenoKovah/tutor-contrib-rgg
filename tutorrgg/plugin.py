@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import typing as t
 from glob import glob
 
 import click
@@ -27,13 +28,15 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         # Each new setting is a pair: (setting_name, default_value).
         # Prefix your setting names with 'RGG_'.
         ("RGG_VERSION", __version__),
-        ("RGG_HOST", "http://gamma.local.edly.io"),
+        ("RGG_DOCKER_IMAGE", "{{ DOCKER_REGISTRY }}raccoongang/rgg:{{ RGG_VERSION }}"),
+        ("RGG_DOCKER_IMAGE_DEV", "{{ DOCKER_REGISTRY }}raccoongang/rgg-dev:{{ RGG_VERSION }}"),
+        ("RGG_HOST", "gamma.{{ LMS_HOST }}"),
         ("RGG_MYSQL_DATABASE", "rgg"),
         ("RGG_DJANGO_ADMIN_USER", "admin"),
         ("RGG_DJANGO_ADMIN_EMAIL", "admin@mail.com"),
-        ("RGG_AWS_STORAGE_BUCKET_NAME", "gamma"), # TODO: add init for bucket creation
-        ("RGG_AWS_S3_ENDPOINT_URL", "http://files.{{ LMS_HOST }}"),
-        ("RGG_AWS_S3_REGION_NAME", ""),
+        ("RGG_AWS_STORAGE_BUCKET_NAME", "rgg"),
+        ("GAMMA_REPOSITORY", "https://gitlab-ci-token:{{ CI_JOB_TOKEN }}@gitlab.raccoongang.com/owlox-team/productsforge/rgg/gamma.git"),
+        ("GAMMA_VERSION", "master"),
     ]
 )
 
@@ -107,6 +110,22 @@ for service, template_path in MY_INIT_TASKS:
 
 
 ########################################
+# RG Gamification Public Host
+########################################
+
+
+@hooks.Filters.APP_PUBLIC_HOSTS.add()
+def _print_rgg_public_hosts(
+    hosts: list[str], context_name: t.Literal["local", "dev"]
+) -> list[str]:
+    if context_name == "dev":
+        hosts += ["{{ RGG_HOST }}:9700"]
+    else:
+        hosts += ["{{ RGG_HOST }}"]
+    return hosts
+
+
+########################################
 # DOCKER IMAGE MANAGEMENT
 ########################################
 
@@ -122,13 +141,15 @@ hooks.Filters.IMAGES_BUILD.add_items(
         (
             "rgg",
             ("plugins", "rgg", "build", "rgg"),
-            "docker.io/rgg:latest",
-            (),
+            "{{ RGG_DOCKER_IMAGE }}",
+            (
+                "--target=production",
+            ),
         ),
         (
             "rgg-dev",
             ("plugins", "rgg", "build", "rgg"),
-            "docker.io/rgg-dev:latest",
+            "{{ RGG_DOCKER_IMAGE_DEV }}",
             (
                 "--target=development",
             ),
@@ -143,10 +164,10 @@ hooks.Filters.IMAGES_BUILD.add_items(
 hooks.Filters.IMAGES_PULL.add_items(
     [
         # To pull `myimage` with `tutor images pull myimage`, you would write:
-        ### (
-        ###     "myimage",
-        ###     "docker.io/myimage:{{ RGG_VERSION }}",
-        ### ),
+        (
+            "rgg",
+            "{{ RGG_DOCKER_IMAGE }}",
+        ),
     ]
 )
 
@@ -157,10 +178,10 @@ hooks.Filters.IMAGES_PULL.add_items(
 hooks.Filters.IMAGES_PUSH.add_items(
     [
         # To push `myimage` with `tutor images push myimage`, you would write:
-        ### (
-        ###     "myimage",
-        ###     "docker.io/myimage:{{ RGG_VERSION }}",
-        ### ),
+        (
+            "rgg",
+            "{{ RGG_DOCKER_IMAGE }}",
+        ),
     ]
 )
 

@@ -17,8 +17,8 @@ RUN if [ "$APP_USER_ID" = 0 ]; then echo "app user may not be root" && false; fi
 RUN useradd --home-dir /rgg --create-home --shell /bin/bash --uid ${APP_USER_ID} app
 USER ${APP_USER_ID}
 
-ARG GAMMA_REPOSITORY=https://gitlab-ci-token:{{ CI_JOB_TOKEN }}@gitlab.raccoongang.com/products/rg-gamification/gamma.git
-ARG GAMMA_VERSION=master
+ARG GAMMA_REPOSITORY={{ GAMMA_REPOSITORY }}
+ARG GAMMA_VERSION={{ GAMMA_VERSION }}
 RUN git clone $GAMMA_REPOSITORY --branch $GAMMA_VERSION --depth 1 /rgg/gamma
 WORKDIR /rgg/gamma
 
