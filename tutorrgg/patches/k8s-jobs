@@ -1,0 +1,29 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rgg-job
+  labels:
+    app.kubernetes.io/component: job
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: rgg
+          image: {{ RGG_DOCKER_IMAGE }}
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: gamma.settings.tutor.production
+            - name: MONGO_URL
+              value: mongodb://mongodb:27017/
+            - name: MONGO_DATABASE
+              value: gamma_data
+          volumeMounts:
+            - mountPath: /rgg/gamma/gamma/settings/tutor/production.py
+              name: settings
+              subPath: production.py
+      volumes:
+        - name: settings
+          configMap:
+            name: rgg-settings
