@@ -3,12 +3,13 @@ DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 AWS_ACCESS_KEY_ID = "{{ OPENEDX_AWS_ACCESS_KEY }}"
 AWS_SECRET_ACCESS_KEY = "{{ OPENEDX_AWS_SECRET_ACCESS_KEY }}"
 AWS_S3_SIGNATURE_VERSION = "s3v4"
+AWS_QUERYSTRING_AUTH = False
 AWS_STORAGE_BUCKET_NAME = "{{ RGG_AWS_STORAGE_BUCKET_NAME }}"
 AWS_S3_ENDPOINT_URL = "{{ "https" if ENABLE_HTTPS else "http" }}://{{ MINIO_HOST }}"
 AWS_S3_REGION_NAME = ""
-# hardcoded for gammification dashboard and leaderboard to properly use the media urls
-{% endif %}  # TODO: add s3 support
+{% endif %}
 
+# hardcoded for gammification dashboard and leaderboard to properly use the media urls
 STORE_RELATIVE_URLS = False
 
 DATABASES = {
