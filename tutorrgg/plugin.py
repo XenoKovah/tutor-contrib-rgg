@@ -157,6 +157,31 @@ hooks.Filters.IMAGES_BUILD.add_items(
     ]
 )
 
+REPO_NAME = "gamma"
+APP_NAME = "rgg"
+
+# Automount /rgg/gamma folder from the container
+@hooks.Filters.COMPOSE_MOUNTS.add()
+def _mount_gamma(
+    mounts: list[tuple[str, str]], name: str
+) -> list[tuple[str, str]]:
+    if name == REPO_NAME:
+        mounts.append((APP_NAME, "/rgg/gamma"))
+        mounts.append((APP_NAME+"-worker", "/rgg/gamma"))
+    return mounts
+
+
+# Bind-mount repo at build-time, both for prod and dev images
+@hooks.Filters.IMAGES_BUILD_MOUNTS.add()
+def _mount_gamma_on_build(
+    mounts: list[tuple[str, str]], host_path: str
+) -> list[tuple[str, str]]:
+    path_basename = os.path.basename(host_path)
+    if path_basename == REPO_NAME:
+        mounts.append((APP_NAME, f"{APP_NAME}-src"))
+        mounts.append((f"{APP_NAME}-dev", f"{APP_NAME}-src"))
+    return mounts
+
 
 # Images to be pulled as part of `tutor images pull`.
 # Each item is a pair in the form:

@@ -28,16 +28,22 @@ ENV PATH="/rgg/venv/bin:$PATH"
 
 RUN --mount=type=cache,target=/rgg/.cache/pip,sharing=shared pip install \
     setuptools==67.7.2 pip==23.1.2. wheel==0.40.0
-RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared pip install -r requirements.txt
-RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared pip install mysqlclient==2.2.4
+RUN --mount=type=cache,target=/rgg/.cache/pip,sharing=shared pip install -r requirements.txt
+RUN --mount=type=cache,target=/rgg/.cache/pip,sharing=shared pip install mysqlclient==2.2.4
+
+##### Empty layer with just the repo at the root.
+# This is useful when overriding the build context with a host repo:
+# docker build --build-context gamma-src=/path/to/gamma
+FROM scratch AS rgg-src
+COPY --from=minimal /rgg/gamma /
 
 FROM node:14 AS static
 
-RUN mkdir /app
+RUN mkdir /rgg
 
-COPY --from=minimal /rgg/gamma /app
+COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma
 
-WORKDIR /app
+WORKDIR /rgg/gamma
 
 RUN npm ci
 RUN npm run build:prod
@@ -48,8 +54,8 @@ FROM minimal AS production
 RUN --mount=type=cache,target=/rgg/.cache/pip,sharing=shared pip install \
     uwsgi==2.0.21
 
-COPY --from=static /app/frontend/webpack_bundles frontend/webpack_bundles
-COPY --from=static /app/webpack-stats-prod.json webpack-stats-prod.json
+COPY --from=static /rgg/gamma/frontend/webpack_bundles frontend/webpack_bundles
+COPY --from=static /rgg/gamma/webpack-stats-prod.json webpack-stats-prod.json
 
 # Run production server
 ENV DJANGO_SETTINGS_MODULE gamma.settings.production
@@ -70,11 +76,11 @@ CMD uwsgi \
 
 FROM node:14 AS static-dev
 
-RUN mkdir /app
+RUN mkdir /rgg
 
-COPY --from=minimal /rgg/gamma /app
+COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma
 
-WORKDIR /app
+WORKDIR /rgg/gamma
 
 RUN npm ci
 RUN npm run build:dev
@@ -83,5 +89,5 @@ FROM minimal AS development
 
 ENV DJANGO_SETTINGS_MODULE gamma.settings.devstack
 
-COPY --from=static-dev /app/frontend/webpack_bundles frontend/webpack_bundles
-COPY --from=static-dev /app/webpack-stats-dev.json webpack-stats-dev.json
+COPY --from=static-dev /rgg/gamma/frontend/webpack_bundles frontend/webpack_bundles
+COPY --from=static-dev /rgg/gamma/webpack-stats-dev.json webpack-stats-dev.json
