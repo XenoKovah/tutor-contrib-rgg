@@ -17,9 +17,9 @@ RUN if [ "$APP_USER_ID" = 0 ]; then echo "app user may not be root" && false; fi
 RUN useradd --home-dir /rgg --create-home --shell /bin/bash --uid ${APP_USER_ID} app
 USER ${APP_USER_ID}
 
-ARG GAMMA_REPOSITORY={{ GAMMA_REPOSITORY }}
-ARG GAMMA_VERSION={{ GAMMA_VERSION }}
-RUN git clone $GAMMA_REPOSITORY --branch $GAMMA_VERSION --depth 1 /rgg/gamma
+ARG RGG_REPOSITORY={{ RGG_REPOSITORY }}
+ARG RGG_REPOSITORY_VERSION={{ RGG_REPOSITORY_VERSION }}
+RUN git clone $RGG_REPOSITORY --branch $RGG_REPOSITORY_VERSION --depth 1 /rgg/gamma
 WORKDIR /rgg/gamma
 
 # Install python venv
