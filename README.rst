@@ -1,7 +1,7 @@
-rgg plugin for `Tutor <https://docs.tutor.edly.io>`__
+Raccoon Gang Gamification plugin for `Tutor <https://docs.tutor.edly.io>`__
 #####################################################
 
-rgg plugin for Tutor
+RGG is a plugin for Tutor that adds gamification features to Open edX platform.
 
 
 Installation
@@ -22,17 +22,19 @@ Usage
     tutor config save --set CI_JOB_TOKEN=your_token
 
 3. Enable and build images
+
 .. code-block:: bash
 
     tutor plugins enable rgg
     tutor images build openedx
     tutor images build rgg
+    tutor images build mfe
 
 4. Start the platform
 
 .. code-block:: bash
 
-    tutor local quickstart
+    tutor local launch
 
 License
 *******
