@@ -28,6 +28,7 @@ Usage
     tutor plugins enable rgg
     tutor images build openedx
     tutor images build rgg
+    tutor images build rgg-dev
     tutor images build mfe
 
 4. Start the platform

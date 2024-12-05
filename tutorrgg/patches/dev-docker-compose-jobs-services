@@ -1,4 +1,4 @@
 rgg-job:
   image: {{ RGG_DOCKER_IMAGE_DEV }}
   environment:
-    DJANGO_SETTINGS_MODULE: rgg.settings.tutor.development
+    DJANGO_SETTINGS_MODULE: gamma.settings.tutor.development
