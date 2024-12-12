@@ -11,6 +11,21 @@ Installation
 
     pip install git+https://gitlab.raccoongang.com/owlox-team/productsforge/oex/tutor-contrib-rgg
 
+Configuration
+*************
+
+Current RG Tutor deployment requires the following configuration:
+
+.. code-block:: yaml
+
+    TUTOR_RGG_HOST: "{% if 'rgg' in TUTOR_PLUGINS %}gamma.{{ TUTOR_LMS_HOST }}{% else %}{% endif %}"
+    TUTOR_RGG_DOCKER_IMAGE: "{{ DOCKER_REGISTRY }}/rgg:{{ RELEASE_VERSION }}"
+    TUTOR_RGG_MYSQL_PASSWORD: "{{ VAULT_RGG_MYSQL_PASSWORD }}"
+    TUTOR_RGG_DEFAULT_APP_KEY: "{{ VAULT_RGG_DEFAULT_APP_KEY }}"
+    TUTOR_RGG_DEFAULT_APP_SECRET: "{{ VAULT_RGG_DEFAULT_APP_SECRET }}"
+    TUTOR_RGG_DJANGO_ADMIN_PASS: "{{ VAULT_RGG_DJANGO_ADMIN_PASS }}"
+
+
 Usage
 *****
 
