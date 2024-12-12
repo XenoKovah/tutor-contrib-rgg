@@ -42,5 +42,6 @@ EDX_LMS_BASE_URL = "http://lms:8000"
 EDX_API_KEY = "{{ EDX_API_KEY }}"
 
 CELERY_BROKER_URL = "redis://redis:6379/3"
+CELERY_RESULT_BACKEND = "redis://redis:6379/3"
 
 {{ patch("rgg-common-settings") }}
