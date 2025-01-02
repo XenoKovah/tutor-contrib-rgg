@@ -210,6 +210,14 @@ hooks.Filters.IMAGES_PUSH.add_items(
     ]
 )
 
+########################################
+# Auto-scaling configuration
+########################################
+try:
+    from tutorrgg.filters import _add_rgg_autoscaling
+except ImportError:
+    pass
+
 
 ########################################
 # TEMPLATE RENDERING
