@@ -30,7 +30,7 @@ rgg-worker:
     MONGO_DATABASE: gamma_data
   volumes:
     - ../../data/rgg:/rgg/gamma/gamma/media/media:rw
-    {%- for mount in iter_mounts(MOUNTS, "gamma") %}
+    {%- for mount in iter_mounts(MOUNTS, "rgg-worker") %}
       - {{ mount }}
     {%- endfor %}
   restart: unless-stopped
