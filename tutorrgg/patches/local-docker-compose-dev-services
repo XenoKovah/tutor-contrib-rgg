@@ -7,8 +7,8 @@ rgg:
     MONGO_DATABASE: gamma_data
   volumes:
     - ../../data/rgg:/rgg/gamma/gamma/media/media:rw
-    {%- for mount in iter_mounts(MOUNTS, "gamma") %}
-      - {{ mount }}
+    {%- for mount in iter_mounts(MOUNTS, "rgg") %}
+    - {{ mount }}
     {%- endfor %}
   command: ./manage.py runserver 0.0.0.0:9700
   stdin_open: true
