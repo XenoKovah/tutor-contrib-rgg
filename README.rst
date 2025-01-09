@@ -52,6 +52,15 @@ Usage
 
     tutor local launch
 
+5. Local development
+.. code-block:: bash
+
+    git clone git@gitlab.raccoongang.com:owlox-team/productsforge/rgg/gamma.git ./src/gamma
+    tutor mounts add ./src/gamma
+    tutor dev start -d rgg
+
+It's important to note that the cloned repo should have the `gamma` name.
+
 License
 *******
 
