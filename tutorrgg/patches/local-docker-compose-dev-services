@@ -31,10 +31,10 @@ rgg-worker:
   volumes:
     - ../../data/rgg:/rgg/gamma/gamma/media/media:rw
     {%- for mount in iter_mounts(MOUNTS, "rgg-worker") %}
-      - {{ mount }}
+    - {{ mount }}
     {%- endfor %}
   restart: unless-stopped
-  depends_on: 
+  depends_on:
     - lms
     - mongodb
     - redis
