@@ -35,15 +35,15 @@ RUN --mount=type=cache,target=/rgg/.cache/pip,sharing=shared pip install mysqlcl
 # This is useful when overriding the build context with a host repo:
 # docker build --build-context gamma-src=/path/to/gamma
 FROM scratch AS rgg-src
-COPY --from=minimal /rgg/gamma /
+COPY --from=minimal /rgg/gamma/frontend/gamma /
 
-FROM node:14 AS static
+FROM node:18 AS static
 
 RUN mkdir /rgg
 
-COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma
+COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma/frontend/gamma
 
-WORKDIR /rgg/gamma
+WORKDIR /rgg/gamma/frontend/gamma
 
 RUN npm ci
 RUN npm run build:prod
@@ -54,8 +54,8 @@ FROM minimal AS production
 RUN --mount=type=cache,target=/rgg/.cache/pip,sharing=shared pip install \
     uwsgi==2.0.21
 
-COPY --from=static /rgg/gamma/frontend/webpack_bundles frontend/webpack_bundles
-COPY --from=static /rgg/gamma/webpack-stats-prod.json webpack-stats-prod.json
+COPY --from=static /rgg/gamma/frontend/gamma/dist frontend/gamma/dist
+COPY --from=static /rgg/gamma/frontend/gamma/webpack-stats-prod.json frontend/gamma/webpack-stats-prod.json
 
 # Run production server
 ENV DJANGO_SETTINGS_MODULE gamma.settings.production
@@ -74,13 +74,13 @@ CMD uwsgi \
     --wsgi-file gamma/wsgi.py
 
 
-FROM node:14 AS static-dev
+FROM node:18 AS static-dev
 
 RUN mkdir /rgg
 
-COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma
+COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma/frontend/gamma
 
-WORKDIR /rgg/gamma
+WORKDIR /rgg/gamma/frontend/gamma
 
 RUN npm ci
 RUN npm run build:dev
@@ -89,5 +89,5 @@ FROM minimal AS development
 
 ENV DJANGO_SETTINGS_MODULE gamma.settings.devstack
 
-COPY --from=static-dev /rgg/gamma/frontend/webpack_bundles frontend/webpack_bundles
-COPY --from=static-dev /rgg/gamma/webpack-stats-dev.json webpack-stats-dev.json
+COPY --from=static-dev /rgg/gamma/frontend/gamma/dist frontend/gamma/dist
+COPY --from=static-dev /rgg/gamma/frontend/gamma/webpack-stats-dev.json frontend/gamma/webpack-stats-dev.json

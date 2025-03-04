@@ -4,7 +4,6 @@ import os
 import typing as t
 from glob import glob
 
-import click
 import importlib_resources
 from tutor import hooks
 
