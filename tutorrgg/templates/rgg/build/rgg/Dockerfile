@@ -5,7 +5,7 @@ LABEL maintainer="raccoongang.com <maksim.sokolskiy@raccoongang.com>"
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \ 
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt update && \
     apt install -y curl git-core language-pack-en python3 python3-pip python3-venv \
     build-essential libcairo2 libffi-dev libmysqlclient-dev libxml2-dev libxslt-dev libjpeg-dev libssl-dev \
@@ -45,8 +45,10 @@ COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma/frontend/gamma
 
 WORKDIR /rgg/gamma/frontend/gamma
 
-RUN npm ci
+RUN npm install
 RUN npm run build:prod
+
+WORKDIR /rgg/gamma
 
 FROM minimal AS production
 
@@ -82,8 +84,10 @@ COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma/frontend/gamma
 
 WORKDIR /rgg/gamma/frontend/gamma
 
-RUN npm ci
+RUN npm install
 RUN npm run build:dev
+
+WORKDIR /rgg/gamma
 
 FROM minimal AS development
 
