@@ -14,3 +14,5 @@ python manage.py \
 python manage.py \
         shell -c "from django.contrib.sites.models import Site; \
         Site.objects.update(domain='{{ RGG_HOST }}', name='{{ RGG_HOST }}')"
+
+python manage.py initialize_leaderboard
