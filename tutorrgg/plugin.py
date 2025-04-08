@@ -167,6 +167,7 @@ def _mount_gamma(
     if name == REPO_NAME:
         mounts.append((APP_NAME, "/rgg/gamma"))
         mounts.append((APP_NAME+"-worker", "/rgg/gamma"))
+        mounts.append((APP_NAME+"-beat", "/rgg/gamma"))
     return mounts
 
 

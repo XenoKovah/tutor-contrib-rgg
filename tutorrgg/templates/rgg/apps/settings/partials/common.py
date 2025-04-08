@@ -30,7 +30,10 @@ CACHES = {
         "BACKEND": "redis_cache.RedisCache",
         "LOCATION": "redis:6379",
         "OPTIONS": {
-            'DB': 3,
+            "DB": 3,
+            "CONNECTION_POOL_CLASS_KWARGS": {
+                "decode_responses": True,
+            },
         },
     }
 }

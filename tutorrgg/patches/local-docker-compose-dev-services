@@ -39,3 +39,23 @@ rgg-worker:
     - mongodb
     - redis
     {% if RUN_MYSQL %}- mysql{% endif %}
+
+# RG Gamification Beat
+rgg-beat:
+  image: {{ RGG_DOCKER_IMAGE_DEV }}
+  command: celery beat -A gamma --loglevel=INFO
+  environment:
+    DJANGO_SETTINGS_MODULE: gamma.settings.tutor.development
+    MONGO_URL: mongodb://mongodb:27017/
+    MONGO_DATABASE: gamma_data
+  volumes:
+    - ../../data/rgg:/rgg/gamma/gamma/media/media:rw
+    {%- for mount in iter_mounts(MOUNTS, "rgg-beat") %}
+    - {{ mount }}
+    {%- endfor %}
+  restart: unless-stopped
+  depends_on:
+    - lms
+    - mongodb
+    - redis
+    {% if RUN_MYSQL %}- mysql{% endif %}
