@@ -35,8 +35,8 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_DJANGO_ADMIN_USER", "admin"),
         ("RGG_DJANGO_ADMIN_EMAIL", "admin@mail.com"),
         ("RGG_AWS_STORAGE_BUCKET_NAME", "rgg"),
-        ("RGG_REPOSITORY", "https://gitlab-ci-token:{{ CI_JOB_TOKEN }}@gitlab.raccoongang.com/owlox-team/productsforge/rgg/gamma.git"),
-        ("RGG_REPOSITORY_VERSION", "master"),
+        ("RGG_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/gamma.git"),
+        ("RGG_REPOSITORY_VERSION", "main"),
     ]
 )
 

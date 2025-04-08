@@ -1,3 +1,3 @@
 RUN pip install \
-git+https://gitlab-ci-token:{{ CI_JOB_TOKEN }}@gitlab.raccoongang.com/owlox-team/productsforge/rgg/gamification-bridge@master#egg=edx_gamma_bridge \
-git+https://gitlab-ci-token:{{ CI_JOB_TOKEN }}@gitlab.raccoongang.com/owlox-team/productsforge/rgg/edx-gamma-dashboard@master#egg=edx_gamma_dashboard
+git+https://gitlab.raccoongang.com/foss/rgg/edx-gamma-bridge@main#egg=edx_gamma_bridge \
+git+https://gitlab.raccoongang.com/foss/rgg/edx-gamma-dashboard@main#egg=edx_gamma_dashboard
