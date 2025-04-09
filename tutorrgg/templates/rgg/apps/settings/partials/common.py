@@ -31,9 +31,6 @@ CACHES = {
         "LOCATION": "redis:6379",
         "OPTIONS": {
             "DB": 3,
-            "CONNECTION_POOL_CLASS_KWARGS": {
-                "decode_responses": True,
-            },
         },
     }
 }
