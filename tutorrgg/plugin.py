@@ -36,6 +36,8 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_AWS_STORAGE_BUCKET_NAME", "rgg"),
         ("RGG_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/gamma.git"),
         ("RGG_REPOSITORY_VERSION", "main"),
+        ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
+        ("RGG_OAUTH2_KEY_SSO_DEV", "rgg-key-sso-dev"),
     ]
 )
 
@@ -59,6 +61,7 @@ hooks.Filters.CONFIG_UNIQUE.add_items(
         ("RGG_DEFAULT_APP_SECRET", "{{ 24|random_string }}"),
         ("RGG_DJANGO_ADMIN_PASS", "{{ 24|random_string }}"),
         ("EDX_API_KEY", "{{ 24|random_string }}"),
+        ("RGG_OAUTH2_SECRET", "{{ 24|random_string }}"),
     ]
 )
 
@@ -85,6 +88,7 @@ MY_INIT_TASKS: list[tuple[str, tuple[str, ...]]] = [
     # tutorrgg/templates/rgg/tasks/lms/init.sh
     # And then add the line:
     ### ("lms", ("rgg", "tasks", "lms", "init.sh")),
+    ("lms", ("rgg", "tasks", "lms", "init")),
     ("rgg", ("rgg", "tasks", "mysql", "init")),
     ("rgg", ("rgg", "tasks", "rgg", "init")),
 ]

@@ -1,0 +1,22 @@
+./manage.py lms manage_user rgg_worker rgg_worker@openedx --staff --superuser --unusable-password
+
+./manage.py lms create_dot_application \
+  --grant-type authorization-code \
+  --redirect-uris "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ RGG_HOST }}/complete/edx-oauth2/" \
+  --client-id {{ RGG_OAUTH2_KEY_SSO }} \
+  --client-secret {{ RGG_OAUTH2_SECRET }} \
+  --scopes user_id \
+  --skip-authorization \
+  --update \
+  rgg-sso \
+  rgg_worker
+./manage.py lms create_dot_application \
+  --grant-type authorization-code \
+  --redirect-uris "http://{{ RGG_HOST }}:9700/complete/edx-oauth2/" \
+  --client-id {{ RGG_OAUTH2_KEY_SSO_DEV }} \
+  --client-secret {{ RGG_OAUTH2_SECRET }} \
+  --scopes user_id \
+  --skip-authorization \
+  --update \
+  rgg-sso-dev \
+  rgg_worker
