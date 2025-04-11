@@ -35,7 +35,7 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_DJANGO_ADMIN_EMAIL", "admin@mail.com"),
         ("RGG_AWS_STORAGE_BUCKET_NAME", "rgg"),
         ("RGG_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/gamma.git"),
-        ("RGG_REPOSITORY_VERSION", "main"),
+        ("RGG_REPOSITORY_VERSION", "nau"),
         ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
         ("RGG_OAUTH2_KEY_SSO_DEV", "rgg-key-sso-dev"),
     ]
