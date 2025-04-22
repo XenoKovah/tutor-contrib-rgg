@@ -16,3 +16,5 @@ python manage.py \
         Site.objects.update(domain='{{ RGG_HOST }}', name='{{ RGG_HOST }}')"
 
 python manage.py initialize_leaderboard
+
+python manage.py initialize_rgg_internal_events
