@@ -50,4 +50,8 @@ SOCIAL_AUTH_EDX_OAUTH2_SECRET = "{{ RGG_OAUTH2_SECRET }}"
 SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "{{ "https" if ENABLE_HTTPS else "http" }}://{{ LMS_HOST }}"
 SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "{{ "https" if ENABLE_HTTPS else "http" }}://{{ LMS_HOST }}/logout"
 
+SESSION_COOKIE_SECURE = {{ "true" if ENABLE_HTTPS else "false" }}
+CSRF_COOKIE_SECURE = {{ "true" if ENABLE_HTTPS else "false" }}
+SESSION_COOKIE_NAME = "gamification_sessionid"
+
 {{ patch("rgg-common-settings") }}
