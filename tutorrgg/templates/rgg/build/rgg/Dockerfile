@@ -35,13 +35,13 @@ RUN --mount=type=cache,target=/rgg/.cache/pip,sharing=shared pip install mysqlcl
 # This is useful when overriding the build context with a host repo:
 # docker build --build-context gamma-src=/path/to/gamma
 FROM scratch AS rgg-src
-COPY --from=minimal /rgg/gamma/frontend/gamma /
+COPY --from=minimal /rgg/gamma /
 
 FROM node:18 AS static
 
 RUN mkdir /rgg
 
-COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma/frontend/gamma
+COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma
 
 WORKDIR /rgg/gamma/frontend/gamma
 
@@ -80,7 +80,7 @@ FROM node:18 AS static-dev
 
 RUN mkdir /rgg
 
-COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma/frontend/gamma
+COPY --link --chown=1000:1000 --from=rgg-src / /rgg/gamma
 
 WORKDIR /rgg/gamma/frontend/gamma
 
