@@ -35,9 +35,6 @@ CACHES = {
     }
 }
 
-MONGO_URL = "mongodb://mongodb:27017/"
-MONGO_DATABASE = "gamma_data"
-
 EDX_LMS_BASE_URL = "http://lms:8000"
 EDX_API_KEY = "{{ EDX_API_KEY }}"
 
