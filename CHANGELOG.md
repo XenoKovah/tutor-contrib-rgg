@@ -5,6 +5,7 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+* feat: [NAU-521] Add initialize_edx_common_events to init
 * feat: [NAU-507] RGG dependency from MongoDB is dropped
 * fix: [NAU-498] Build error when Gamma core repo is mounted is fixed
 * fix: [NAU-497] Fix 500 on Gamma dev SSO
