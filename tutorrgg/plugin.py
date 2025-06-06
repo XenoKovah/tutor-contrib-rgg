@@ -38,6 +38,7 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_REPOSITORY_VERSION", "nau"),
         ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
         ("RGG_OAUTH2_KEY_SSO_DEV", "rgg-key-sso-dev"),
+        ("RGG_GAMMA_SETTINGS_URL", "{{ ('https' if ENABLE_HTTPS else 'http') ~ '://' ~ (RGG_HOST if ENABLE_HTTPS else 'localhost:9700') ~ '/gamma/badges/' }}"),
     ]
 )
 
