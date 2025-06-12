@@ -9,6 +9,11 @@ AWS_S3_ENDPOINT_URL = "{{ "https" if ENABLE_HTTPS else "http" }}://{{ MINIO_HOST
 AWS_S3_REGION_NAME = ""
 {% endif %}
 
+DEFAULT_FILE_STORAGE = "{{ RGG_DEFAULT_FILE_STORAGE }}"
+
+# Provide additional configuration parameters required by the specified DEFAULT_FILE_STORAGE backend.
+DEFAULT_FILE_STORAGE_OPTIONS = "{{ RGG_DEFAULT_FILE_STORAGE_OPTIONS }}"
+
 # hardcoded for gammification dashboard and leaderboard to properly use the media urls
 STORE_RELATIVE_URLS = False
 

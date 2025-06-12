@@ -6,6 +6,7 @@ from glob import glob
 
 import importlib_resources
 from tutor import hooks
+from tutor.config import load
 
 from .__about__ import __version__
 
@@ -39,6 +40,8 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
         ("RGG_OAUTH2_KEY_SSO_DEV", "rgg-key-sso-dev"),
         ("RGG_GAMMA_SETTINGS_URL", "{{ ('https' if ENABLE_HTTPS else 'http') ~ '://' ~ (RGG_HOST if ENABLE_HTTPS else 'localhost:9700') ~ '/gamma/badges/' }}"),
+        ("RGG_DEFAULT_FILE_STORAGE", "storages.backends.s3boto3.S3Boto3Storage"),
+        ("RGG_DEFAULT_FILE_STORAGE_OPTIONS", {})
     ]
 )
 
@@ -65,6 +68,28 @@ hooks.Filters.CONFIG_UNIQUE.add_items(
         ("RGG_OAUTH2_SECRET", "{{ 24|random_string }}"),
     ]
 )
+
+# Inject settings for file storage options which can be extended via `config.yml`.
+@hooks.Actions.PROJECT_ROOT_READY.add()
+def _extend_with_file_storage_settings(root: str) -> None:
+    current_config = load(root)
+
+    file_storage_backend = current_config.get("RGG_DEFAULT_FILE_STORAGE")
+    file_storage_options = current_config.get("RGG_DEFAULT_FILE_STORAGE_OPTIONS") or {}
+    
+    patch_settings_str = []
+
+    # Override the DEFAULT_FILE_STORAGE setting.
+    if file_storage_backend:
+        patch_settings_str.append(f"DEFAULT_FILE_STORAGE = '{file_storage_backend}'")
+
+    # Extend file storage backend with options.
+    for key, value in file_storage_options.items():
+        patch_settings_str.append(f"{key} = {repr(value)}")
+
+    # Inject into openedx-common-settings.
+    joined_settings_str = "\n".join(patch_settings_str)
+    hooks.Filters.ENV_PATCHES.add_items([("openedx-common-settings", joined_settings_str)])
 
 hooks.Filters.CONFIG_OVERRIDES.add_items(
     [
