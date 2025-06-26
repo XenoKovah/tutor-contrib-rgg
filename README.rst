@@ -9,7 +9,7 @@ Installation
 
 .. code-block:: bash
 
-    pip install git+https://gitlab.raccoongang.com/foss/rgg/tutor-contrib-rgg.git@nau
+    pip install git+https://gitlab.raccoongang.com/foss/rgg/tutor-contrib-rgg.git@teak
 
 
 Usage
@@ -35,7 +35,7 @@ Usage
 .. code-block:: bash
 
     git clone git@gitlab.raccoongang.com:foss/rgg/gamma.git ./src/gamma
-    cd ./src/gamma && git checkout nau
+    cd ./src/gamma && git checkout release/teak
     tutor mounts add ./src/gamma
     tutor dev start -d rgg
 
