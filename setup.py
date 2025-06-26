@@ -28,10 +28,10 @@ ABOUT = load_about()
 setup(
     name="tutor-contrib-rgg",
     version=ABOUT["__version__"],
-    url="https://gitlab.raccoongang.com/products/rg-gamification/tutor-contrib-rgg",
+    url="https://gitlab.raccoongang.com/foss/rgg/tutor-contrib-rgg",
     project_urls={
-        "Code": "https://gitlab.raccoongang.com/products/rg-gamification/tutor-contrib-rgg",
-        "Issue tracker": "https://gitlab.raccoongang.com/products/rg-gamification/tutor-contrib-rgg/issues",
+        "Code": "https://gitlab.raccoongang.com/foss/rgg/tutor-contrib-rgg",
+        "Issue tracker": "https://gitlab.raccoongang.com/foss/rgg/tutor-contrib-rgg/issues",
     },
     license="AGPLv3",
     author="Max Sokolski",
