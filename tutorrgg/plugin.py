@@ -76,7 +76,7 @@ def _extend_with_file_storage_settings(root: str) -> None:
 
     file_storage_backend = current_config.get("RGG_DEFAULT_FILE_STORAGE")
     file_storage_options = current_config.get("RGG_DEFAULT_FILE_STORAGE_OPTIONS") or {}
-    
+
     patch_settings_str = []
 
     # Override the DEFAULT_FILE_STORAGE setting.
@@ -89,7 +89,7 @@ def _extend_with_file_storage_settings(root: str) -> None:
 
     # Inject into openedx-common-settings.
     joined_settings_str = "\n".join(patch_settings_str)
-    hooks.Filters.ENV_PATCHES.add_items([("openedx-common-settings", joined_settings_str)])
+    hooks.Filters.ENV_PATCHES.add_items([("rgg-common-settings", joined_settings_str)])
 
 hooks.Filters.CONFIG_OVERRIDES.add_items(
     [
