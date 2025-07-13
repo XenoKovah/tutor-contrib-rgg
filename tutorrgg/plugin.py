@@ -32,6 +32,7 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_DOCKER_IMAGE_DEV", "{{ DOCKER_REGISTRY }}raccoongang/rgg-dev:{{ RGG_VERSION }}"),
         ("RGG_HOST", "gamma.{{ LMS_HOST }}"),
         ("RGG_MYSQL_DATABASE", "rgg"),
+        ("RGG_REDIS_DB", "3"),
         ("RGG_DJANGO_ADMIN_USER", "admin"),
         ("RGG_DJANGO_ADMIN_EMAIL", "admin@mail.com"),
         ("RGG_AWS_STORAGE_BUCKET_NAME", "rgg"),

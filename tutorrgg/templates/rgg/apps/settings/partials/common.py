@@ -33,9 +33,8 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "redis_cache.RedisCache",
-        "LOCATION": "redis:6379",
+        "LOCATION": "redis://{% if REDIS_USERNAME and REDIS_PASSWORD %}{{ REDIS_USERNAME }}:{{ REDIS_PASSWORD }}{% endif %}@{{ REDIS_HOST }}:{{ REDIS_PORT }}/{{ RGG_REDIS_DB }}",
         "OPTIONS": {
-            "DB": 3,
         },
     }
 }
@@ -43,8 +42,8 @@ CACHES = {
 EDX_LMS_BASE_URL = "http://lms:8000"
 EDX_API_KEY = "{{ EDX_API_KEY }}"
 
-CELERY_BROKER_URL = "redis://redis:6379/3"
-CELERY_RESULT_BACKEND = "redis://redis:6379/3"
+CELERY_BROKER_URL = "redis://{% if REDIS_USERNAME and REDIS_PASSWORD %}{{ REDIS_USERNAME }}:{{ REDIS_PASSWORD }}{% endif %}@{{ REDIS_HOST }}:{{ REDIS_PORT }}/{{ RGG_REDIS_DB }}"
+CELERY_RESULT_BACKEND = "redis://{% if REDIS_USERNAME and REDIS_PASSWORD %}{{ REDIS_USERNAME }}:{{ REDIS_PASSWORD }}{% endif %}@{{ REDIS_HOST }}:{{ REDIS_PORT }}/{{ RGG_REDIS_DB }}"
 
 OAUTH2_PROVIDER_URL = "{{ "https" if ENABLE_HTTPS else "http" }}://{{ LMS_HOST }}/oauth2"
 SOCIAL_AUTH_EDX_OAUTH2_KEY = "{{ RGG_OAUTH2_KEY_SSO }}"
