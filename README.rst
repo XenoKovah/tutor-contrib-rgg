@@ -34,8 +34,7 @@ Usage
 3. Local development
 .. code-block:: bash
 
-    git clone git@gitlab.raccoongang.com:foss/rgg/gamma.git ./src/gamma
-    cd ./src/gamma && git checkout release/teak
+    git clone git@gitlab.raccoongang.com:foss/rgg/gamma.git -b main ./src/gamma
     tutor mounts add ./src/gamma
     tutor dev start -d rgg
 

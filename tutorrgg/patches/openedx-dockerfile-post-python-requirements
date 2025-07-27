@@ -1,3 +1,4 @@
-RUN pip install \
-git+https://gitlab.raccoongang.com/foss/rgg/edx-gamma-bridge@release/teak#egg=edx_gamma_bridge \
-git+https://gitlab.raccoongang.com/foss/rgg/edx-gamma-dashboard@release/teak#egg=edx_gamma_dashboard
+RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared \
+    pip install \
+        git+{{ RGG_BRIDGE_REPOSITORY }}@{{ RGG_BRIDGE_REPOSITORY_VERSION }}#egg=edx_gamma_bridge \
+        git+{{ RGG_DASHBOARD_REPOSITORY }}@{{ RGG_DASHBOARD_REPOSITORY_VERSION }}#egg=edx_gamma_dashboard
