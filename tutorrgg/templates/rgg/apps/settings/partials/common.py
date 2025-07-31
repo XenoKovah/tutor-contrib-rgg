@@ -1,12 +1,24 @@
-{% if IS_MINIO_ENABLED %}
+{% if is_plugin_loaded("minio") or is_plugin_loaded("s3") %}
+# S3 common settings
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 AWS_ACCESS_KEY_ID = "{{ OPENEDX_AWS_ACCESS_KEY }}"
 AWS_SECRET_ACCESS_KEY = "{{ OPENEDX_AWS_SECRET_ACCESS_KEY }}"
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_QUERYSTRING_AUTH = False
 AWS_STORAGE_BUCKET_NAME = "{{ RGG_AWS_STORAGE_BUCKET_NAME }}"
+{% endif %}
+
+{% if is_plugin_loaded("minio") %}
+# Minio specific settings
 AWS_S3_ENDPOINT_URL = "{{ "https" if ENABLE_HTTPS else "http" }}://{{ MINIO_HOST }}"
 AWS_S3_REGION_NAME = ""
+{% endif %}
+
+{% if is_plugin_loaded("s3") %}
+# AWS S3 specific settings
+AWS_S3_ENDPOINT_URL = None
+AWS_S3_REGION_NAME = "{{ RGG_AWS_S3_REGION_NAME }}"
+AWS_DEFAULT_ACL = "public-read"
 {% endif %}
 
 DEFAULT_FILE_STORAGE = "{{ RGG_DEFAULT_FILE_STORAGE }}"

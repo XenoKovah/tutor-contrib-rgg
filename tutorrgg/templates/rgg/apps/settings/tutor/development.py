@@ -2,7 +2,7 @@ from ..devstack import *
 
 {% include "rgg/apps/settings/partials/common.py" %}
 
-{% if IS_MINIO_ENABLED %}
+{% if is_plugin_loaded("minio") %}
 AWS_S3_ENDPOINT_URL = "http://{{ MINIO_HOST }}:9000"
 {% endif %}
 
