@@ -36,6 +36,8 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_DJANGO_ADMIN_USER", "admin"),
         ("RGG_DJANGO_ADMIN_EMAIL", "admin@mail.com"),
         ("RGG_AWS_STORAGE_BUCKET_NAME", "rgg"),
+        ("RGG_AWS_S3_REGION_NAME", "eu-central-1"),
+        ("RGG_DEFAULT_FILE_STORAGE", "storages.backends.s3boto3.S3Boto3Storage"),
         ("RGG_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/gamma.git"),
         ("RGG_REPOSITORY_VERSION", "main"),
         ("RGG_BRIDGE_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/edx-gamma-bridge.git"),
@@ -45,14 +47,13 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
         ("RGG_OAUTH2_KEY_SSO_DEV", "rgg-key-sso-dev"),
         ("RGG_GAMMA_SETTINGS_URL", "{{ ('https' if ENABLE_HTTPS else 'http') ~ '://' ~ (RGG_HOST if ENABLE_HTTPS else 'localhost:9700') ~ '/gamma/badges/' }}"),
-        ("RGG_DEFAULT_FILE_STORAGE", "storages.backends.s3boto3.S3Boto3Storage"),
         ("RGG_DEFAULT_FILE_STORAGE_OPTIONS", {})
     ]
 )
 
 hooks.Filters.ENV_TEMPLATE_VARIABLES.add_items(
     [
-        ("IS_MINIO_ENABLED", is_plugin_loaded("minio")),
+        ("is_plugin_loaded", is_plugin_loaded),
     ],
 )
 
