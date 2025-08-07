@@ -18,7 +18,7 @@ AWS_S3_REGION_NAME = ""
 # AWS S3 specific settings
 AWS_S3_ENDPOINT_URL = None
 AWS_S3_REGION_NAME = "{{ RGG_AWS_S3_REGION_NAME }}"
-AWS_DEFAULT_ACL = "public-read"
+AWS_DEFAULT_ACL = {% if RGG_AWS_DEFAULT_ACL == "None" %}None{% else %}"{{ RGG_AWS_DEFAULT_ACL }}"{% endif %}
 {% endif %}
 
 DEFAULT_FILE_STORAGE = "{{ RGG_DEFAULT_FILE_STORAGE }}"
