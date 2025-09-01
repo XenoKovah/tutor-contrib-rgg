@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: rgg
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - port: 8000
       protocol: TCP
