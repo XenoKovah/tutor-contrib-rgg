@@ -19,3 +19,5 @@ python manage.py initialize_leaderboard
 
 python manage.py initialize_rgg_internal_events
 python manage.py initialize_edx_common_events
+
+python manage.py seed_default_avatar
