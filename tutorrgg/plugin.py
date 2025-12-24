@@ -7,6 +7,7 @@ from glob import glob
 import importlib_resources
 from tutor import hooks
 from tutor.config import load
+from tutormfe.hooks import PLUGIN_SLOTS
 
 from .__about__ import __version__
 
@@ -45,10 +46,12 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_BRIDGE_REPOSITORY_VERSION", "main"),
         ("RGG_DASHBOARD_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/edx-gamma-dashboard.git"),
         ("RGG_DASHBOARD_REPOSITORY_VERSION", "main"),
+        ("RGG_WIDGETS_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/frontend-rgg-widgets.git"),
+        ("RGG_WIDGETS_VERSION", "main"),
         ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
         ("RGG_OAUTH2_KEY_SSO_DEV", "rgg-key-sso-dev"),
         ("RGG_GAMMA_SETTINGS_URL", "{{ ('https' if ENABLE_HTTPS else 'http') ~ '://' ~ (RGG_HOST if ENABLE_HTTPS else 'localhost:9700') ~ '/gamma/badges/' }}"),
-        ("RGG_DEFAULT_FILE_STORAGE_OPTIONS", {})
+        ("RGG_DEFAULT_FILE_STORAGE_OPTIONS", {}),
     ]
 )
 
@@ -83,7 +86,7 @@ def _extend_with_file_storage_settings(root: str) -> None:
 
     file_storage_backend = current_config.get("RGG_DEFAULT_FILE_STORAGE")
     file_storage_options = current_config.get("RGG_DEFAULT_FILE_STORAGE_OPTIONS") or {}
-    
+
     patch_settings_str = []
 
     # Override the DEFAULT_FILE_STORAGE setting.
@@ -294,6 +297,81 @@ for path in glob(str(importlib_resources.files("tutorrgg") / "patches" / "*")):
     with open(path, encoding="utf-8") as patch_file:
         hooks.Filters.ENV_PATCHES.add_item((os.path.basename(path), patch_file.read()))
 
+########################################
+# PLUGIN SLOTS
+########################################
+
+RGG_WIDGETS_PKG = "@rgg-plugins/frontend-rgg-widgets@git+{{ RGG_WIDGETS_REPOSITORY }}#{{ RGG_WIDGETS_VERSION }}"
+RGG_WIDGET_IMPORT = "const { AvatarProgress, HeaderUserMenuItems, LearningHeaderUserMenuItems } = await import('@rgg-plugins/frontend-rgg-widgets');"
+
+RGG_CORE_MFES = ["account", "discussions", "learner-dashboard", "profile"]
+RGG_LEARNER_MFES = RGG_CORE_MFES + ["learning"]
+
+RGG_HEADER_SECONDARY_MENU_SLOTS = {
+    **{mfe: [
+        "desktop_secondary_menu_slot", # frontend-component-header <= v6.3.0
+        "org.openedx.frontend.layout.header_desktop_secondary_menu.v1", # frontend-component-header >= v6.4.0
+    ] for mfe in RGG_CORE_MFES},
+    "learning": [
+        "learning_help_slot", # frontend-component-header <= v6.3.0
+        "org.openedx.frontend.layout.header_learning_help.v1", # frontend-component-header >= v6.4.0
+    ],
+}
+
+RGG_HEADER_USER_MENU_SLOTS = {
+    **{mfe: [
+        "desktop_user_menu_slot", # frontend-component-header <= v6.3.0
+        "mobile_user_menu_slot", # frontend-component-header >= v6.3.0
+        "org.openedx.frontend.layout.header_desktop_user_menu.v1", # frontend-component-header >= v6.4.0
+        "org.openedx.frontend.layout.header_mobile_user_menu.v1", # frontend-component-header >= v6.4.0
+    ] for mfe in RGG_CORE_MFES},
+    "learning": [
+        "learning_user_menu_slot", # frontend-component-header <= v6.3.0
+        "org.openedx.frontend.layout.header_learning_user_menu.v1", # frontend-component-header >= v6.4.0
+    ],
+}
+
+for mfe in RGG_LEARNER_MFES:
+    hooks.Filters.ENV_PATCHES.add_items([
+        (f"mfe-dockerfile-post-npm-install-{mfe}", f"RUN npm install {RGG_WIDGETS_PKG}"),
+        (f"mfe-env-config-runtime-definitions-{mfe}", RGG_WIDGET_IMPORT),
+    ])
+
+for mfe, slots in RGG_HEADER_SECONDARY_MENU_SLOTS.items():
+    for slot in slots:
+        widget_id = f"rgg_header_avatar_progress__{mfe}__{slot}"
+        PLUGIN_SLOTS.add_items([(
+            mfe,
+            slot,
+            f"""
+            {{
+                op: PLUGIN_OPERATIONS.Insert,
+                widget: {{
+                    id: '{widget_id}',
+                    priority: 1,
+                    type: DIRECT_PLUGIN,
+                    RenderWidget: AvatarProgress,
+                }},
+            }}""",
+        )])
+
+for mfe, slots in RGG_HEADER_USER_MENU_SLOTS.items():
+    for slot in slots:
+        widget_id = f"rgg_header_user_menu_items__{mfe}__{slot}"
+        PLUGIN_SLOTS.add_items([(
+            mfe,
+            slot,
+            f"""
+            {{
+                op: PLUGIN_OPERATIONS.Insert,
+                widget: {{
+                    id: '{widget_id}',
+                    priority: 1,
+                    type: DIRECT_PLUGIN,
+                    RenderWidget: UserMenuItems,
+                }},
+            }}""",
+        )])
 
 ########################################
 # CUSTOM JOBS (a.k.a. "do-commands")
