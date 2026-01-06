@@ -304,14 +304,18 @@ for path in glob(str(importlib_resources.files("tutorrgg") / "patches" / "*")):
 RGG_WIDGETS_PKG = "@rgg-plugins/frontend-rgg-widgets@git+{{ RGG_WIDGETS_REPOSITORY }}#{{ RGG_WIDGETS_VERSION }}"
 RGG_WIDGET_IMPORT = "const { AvatarProgress, HeaderUserMenuItems, LearningHeaderUserMenuItems } = await import('@rgg-plugins/frontend-rgg-widgets');"
 
-RGG_CORE_MFES = ["account", "discussions", "learner-dashboard", "profile"]
-RGG_LEARNER_MFES = RGG_CORE_MFES + ["learning"]
+# Note: added `learning` MFE in case when uses general header component (RG theme behavior)
+RGG_CORE_MFES = ["account", "discussions", "learner-dashboard", "profile", "learning"]
 
 RGG_HEADER_SECONDARY_MENU_SLOTS = {
     **{mfe: [
         "desktop_secondary_menu_slot", # frontend-component-header <= v6.3.0
         "org.openedx.frontend.layout.header_desktop_secondary_menu.v1", # frontend-component-header >= v6.4.0
-    ] for mfe in RGG_LEARNER_MFES},
+    ] for mfe in RGG_CORE_MFES},
+}
+
+# Insert widget into Learning MFE when uses learning header component (default Open edX behavior)
+RGG_LEARNING_HEADER_SECONDARY_MENU_SLOTS = {
     "learning": [
         "learning_help_slot", # frontend-component-header <= v6.3.0
         "org.openedx.frontend.layout.header_learning_help.v1", # frontend-component-header >= v6.4.0
@@ -321,12 +325,13 @@ RGG_HEADER_SECONDARY_MENU_SLOTS = {
 RGG_HEADER_USER_MENU_SLOTS = {
     **{mfe: [
         "desktop_user_menu_slot", # frontend-component-header <= v6.3.0
-        "mobile_user_menu_slot", # frontend-component-header >= v6.3.0
+        "mobile_user_menu_slot", # frontend-component-header <= v6.3.0
         "org.openedx.frontend.layout.header_desktop_user_menu.v1", # frontend-component-header >= v6.4.0
         "org.openedx.frontend.layout.header_mobile_user_menu.v1", # frontend-component-header >= v6.4.0
-    ] for mfe in RGG_LEARNER_MFES},
+    ] for mfe in RGG_CORE_MFES},
 }
 
+# Insert widget into Learning MFE when uses learning header component (default Open edX behavior)
 RGG_LEARNING_HEADER_USER_MENU_SLOTS = {
     "learning": [
         "learning_user_menu_slot", # frontend-component-header <= v6.3.0
@@ -334,21 +339,19 @@ RGG_LEARNING_HEADER_USER_MENU_SLOTS = {
     ],
 }
 
-for mfe in RGG_LEARNER_MFES:
+for mfe in RGG_CORE_MFES:
     hooks.Filters.ENV_PATCHES.add_items([
         (f"mfe-dockerfile-post-npm-install-{mfe}", f"RUN npm install {RGG_WIDGETS_PKG}"),
         (f"mfe-env-config-runtime-definitions-{mfe}", RGG_WIDGET_IMPORT),
     ])
 
-# Register a DIRECT_PLUGIN widget into each (mfe, slot) in `slot_map`.
-def register_widgets(slot_map, widget_id_prefix, render_widget, priority=1):
+# Register plugin slot operations into each (mfe, slot) in `slot_map`.
+def register_widgets(slot_map, widget_id_prefix, render_widget, operation="Insert", priority=1, target_widget_id="default_contents"):
     for mfe, slots in slot_map.items():
         for slot in slots:
             widget_id = f"{widget_id_prefix}__{mfe}__{slot}"
-            PLUGIN_SLOTS.add_items([(
-                mfe,
-                slot,
-                f"""
+            if operation == "Insert":
+                plugin_config = f"""
                 {{
                     op: PLUGIN_OPERATIONS.Insert,
                     widget: {{
@@ -357,13 +360,42 @@ def register_widgets(slot_map, widget_id_prefix, render_widget, priority=1):
                         type: DIRECT_PLUGIN,
                         RenderWidget: {render_widget},
                     }},
-                }}""",
+                }}"""
+            elif operation == "Modify":
+                plugin_config = f"""
+                {{
+                    op: PLUGIN_OPERATIONS.Modify,
+                    widgetId: '{target_widget_id}',
+                    fn: {render_widget},
+                }}"""
+            elif operation == "Wrap":
+                plugin_config = f"""
+                {{
+                    op: PLUGIN_OPERATIONS.Wrap,
+                    widgetId: '{target_widget_id}',
+                    wrapper: {render_widget},
+                }}"""
+            elif operation == "Hide":
+                plugin_config = f"""
+                {{
+                    op: PLUGIN_OPERATIONS.Hide,
+                    widgetId: '{target_widget_id}',
+                }}"""
+            else:
+                raise ValueError(f"Unsupported plugin slot operation: {operation!r}")
+
+            PLUGIN_SLOTS.add_items([(
+                mfe,
+                slot,
+                plugin_config,
             )])
 
 
-register_widgets(RGG_HEADER_SECONDARY_MENU_SLOTS, "rgg_header_avatar_progress", "AvatarProgress")
-register_widgets(RGG_HEADER_USER_MENU_SLOTS, "rgg_header_user_menu_items", "HeaderUserMenuItems")
-register_widgets(RGG_LEARNING_HEADER_USER_MENU_SLOTS, "rgg_learning_header_user_menu_items", "LearningHeaderUserMenuItems")
+register_widgets(RGG_HEADER_SECONDARY_MENU_SLOTS, "rgg_header_avatar_progress", "AvatarProgress", "Insert")
+register_widgets(RGG_LEARNING_HEADER_SECONDARY_MENU_SLOTS, "rgg_learning_header_avatar_progress", "AvatarProgress", "Insert")
+
+register_widgets(RGG_HEADER_USER_MENU_SLOTS, "rgg_header_user_menu_items", "HeaderUserMenuItems", "Modify")
+register_widgets(RGG_LEARNING_HEADER_USER_MENU_SLOTS, "rgg_learning_header_user_menu_items", "LearningHeaderUserMenuItems", "Modify")
 
 ########################################
 # CUSTOM JOBS (a.k.a. "do-commands")
