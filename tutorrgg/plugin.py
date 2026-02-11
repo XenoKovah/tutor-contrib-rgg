@@ -97,9 +97,9 @@ def _extend_with_file_storage_settings(root: str) -> None:
     for key, value in file_storage_options.items():
         patch_settings_str.append(f"{key} = {repr(value)}")
 
-    # Inject into openedx-common-settings.
+    # Inject into rgg-common-settings.
     joined_settings_str = "\n".join(patch_settings_str)
-    hooks.Filters.ENV_PATCHES.add_items([("openedx-common-settings", joined_settings_str)])
+    hooks.Filters.ENV_PATCHES.add_items([("rgg-common-settings", joined_settings_str)])
 
 hooks.Filters.CONFIG_OVERRIDES.add_items(
     [

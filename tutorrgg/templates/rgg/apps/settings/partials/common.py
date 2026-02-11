@@ -24,7 +24,7 @@ AWS_DEFAULT_ACL = {% if RGG_AWS_DEFAULT_ACL == "None" %}None{% else %}"{{ RGG_AW
 DEFAULT_FILE_STORAGE = "{{ RGG_DEFAULT_FILE_STORAGE }}"
 
 # Provide additional configuration parameters required by the specified DEFAULT_FILE_STORAGE backend.
-DEFAULT_FILE_STORAGE_OPTIONS = "{{ RGG_DEFAULT_FILE_STORAGE_OPTIONS }}"
+DEFAULT_FILE_STORAGE_OPTIONS = {{ RGG_DEFAULT_FILE_STORAGE_OPTIONS }}
 
 # hardcoded for gammification dashboard and leaderboard to properly use the media urls
 STORE_RELATIVE_URLS = False
