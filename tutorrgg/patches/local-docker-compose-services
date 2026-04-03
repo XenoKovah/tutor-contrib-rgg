@@ -5,11 +5,12 @@ rgg:
     DJANGO_SETTINGS_MODULE: gamma.settings.tutor.production
   volumes:
     - ../plugins/rgg/apps/settings/tutor:/rgg/gamma/gamma/settings/tutor:ro
-    - ../../data/rgg:/rgg/gamma/gamma/media/media:rw
+    - ../../data/rgg:/rgg/gamma/gamma/media:rw
   restart: unless-stopped
   depends_on:
     - lms
     - redis
+    - permissions
     {% if RUN_MYSQL %}- mysql{% endif %}
 
 # RG Gamification Worker
