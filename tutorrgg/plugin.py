@@ -305,7 +305,7 @@ RGG_WIDGETS_PKG = "@rgg-plugins/frontend-rgg-widgets@git+{{ RGG_WIDGETS_REPOSITO
 RGG_WIDGET_IMPORT = "const { AvatarProgress, HeaderUserMenuItems, LearningHeaderUserMenuItems } = await import('@rgg-plugins/frontend-rgg-widgets');"
 
 # Note: added `learning` MFE in case when uses general header component (RG theme behavior)
-RGG_CORE_MFES = ["account", "discussions", "learner-dashboard", "profile", "learning"]
+RGG_CORE_MFES = ["account", "communications", "discussions", "learner-dashboard", "profile", "learning"]
 
 RGG_HEADER_SECONDARY_MENU_SLOTS = {
     **{mfe: [
@@ -314,12 +314,12 @@ RGG_HEADER_SECONDARY_MENU_SLOTS = {
     ] for mfe in RGG_CORE_MFES},
 }
 
-# Insert widget into Learning MFE when uses learning header component (default Open edX behavior)
+# Insert widget into Discussions, Communications, Learning MFEs when uses learning header component (default Open edX behavior)
 RGG_LEARNING_HEADER_SECONDARY_MENU_SLOTS = {
-    "learning": [
+    **{mfe: [
         "learning_help_slot", # frontend-component-header <= v6.3.0
         "org.openedx.frontend.layout.header_learning_help.v1", # frontend-component-header >= v6.4.0
-    ],
+    ] for mfe in ["discussions", "communications", "learning"]}
 }
 
 RGG_HEADER_USER_MENU_SLOTS = {
@@ -331,12 +331,12 @@ RGG_HEADER_USER_MENU_SLOTS = {
     ] for mfe in RGG_CORE_MFES},
 }
 
-# Insert widget into Learning MFE when uses learning header component (default Open edX behavior)
+# Insert widget into Discussions, Communications, Learning MFEs when uses learning header component (default Open edX behavior)
 RGG_LEARNING_HEADER_USER_MENU_SLOTS = {
-    "learning": [
+    **{mfe: [
         "learning_user_menu_slot", # frontend-component-header <= v6.3.0
         "org.openedx.frontend.layout.header_learning_user_menu.v1", # frontend-component-header >= v6.4.0
-    ],
+    ] for mfe in ["discussions", "communications", "learning"]}
 }
 
 for mfe in RGG_CORE_MFES:
