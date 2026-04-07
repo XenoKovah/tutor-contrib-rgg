@@ -57,7 +57,7 @@ spec:
       containers:
         - name: rgg-worker
           image: {{ RGG_DOCKER_IMAGE }}
-          args: ["celery", "--app=gamma", "worker", "--loglevel=info"]
+          args: ["celery", "--app=gamma", "worker", "--loglevel=info", "-Q", "gamma"]
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: gamma.settings.tutor.production
