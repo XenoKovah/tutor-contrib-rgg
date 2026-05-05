@@ -346,7 +346,14 @@ for mfe in RGG_CORE_MFES:
     ])
 
 # Register plugin slot operations into each (mfe, slot) in `slot_map`.
-def register_widgets(slot_map, widget_id_prefix, render_widget, operation="Insert", priority=1, target_widget_id="default_contents"):
+def register_widgets(
+    slot_map: dict[str, list[str]],
+    widget_id_prefix: str,
+    render_widget: str,
+    operation: str = "Insert",
+    priority: int = 1,
+    target_widget_id: str = "default_contents",
+) -> None:
     for mfe, slots in slot_map.items():
         for slot in slots:
             widget_id = f"{widget_id_prefix}__{mfe}__{slot}"
