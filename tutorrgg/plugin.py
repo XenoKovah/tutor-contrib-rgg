@@ -302,7 +302,7 @@ for path in glob(str(importlib_resources.files("tutorrgg") / "patches" / "*")):
 ########################################
 
 RGG_WIDGETS_PKG = "@rgg-plugins/frontend-rgg-widgets@git+{{ RGG_WIDGETS_REPOSITORY }}#{{ RGG_WIDGETS_VERSION }}"
-RGG_WIDGET_IMPORT = "const { AvatarProgress, HeaderUserMenuItems, LearningHeaderUserMenuItems } = await import('@rgg-plugins/frontend-rgg-widgets');"
+RGG_WIDGET_IMPORT = "const { HeaderUserMenuItems, LearningHeaderUserMenuItems } = await import('@rgg-plugins/frontend-rgg-widgets');"
 
 # Note: added `learning` MFE in case when uses general header component (RG theme behavior)
 RGG_CORE_MFES = ["account", "communications", "discussions", "learner-dashboard", "profile", "learning"]
@@ -397,9 +397,6 @@ def register_widgets(
                 plugin_config,
             )])
 
-
-register_widgets(RGG_HEADER_SECONDARY_MENU_SLOTS, "rgg_header_avatar_progress", "AvatarProgress", "Insert")
-register_widgets(RGG_LEARNING_HEADER_SECONDARY_MENU_SLOTS, "rgg_learning_header_avatar_progress", "AvatarProgress", "Insert")
 
 register_widgets(RGG_HEADER_USER_MENU_SLOTS, "rgg_header_user_menu_items", "HeaderUserMenuItems", "Modify")
 register_widgets(RGG_LEARNING_HEADER_USER_MENU_SLOTS, "rgg_learning_header_user_menu_items", "LearningHeaderUserMenuItems", "Modify")
