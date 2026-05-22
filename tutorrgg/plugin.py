@@ -47,7 +47,7 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_DASHBOARD_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/edx-gamma-dashboard.git"),
         ("RGG_DASHBOARD_REPOSITORY_VERSION", "release/teak"),
         ("RGG_WIDGETS_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/frontend-rgg-widgets.git"),
-        ("RGG_WIDGETS_VERSION", "main"),
+        ("RGG_WIDGETS_VERSION", "release/teak"),
         ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
         ("RGG_OAUTH2_KEY_SSO_DEV", "rgg-key-sso-dev"),
         ("RGG_GAMMA_SETTINGS_URL", "{{ ('https' if ENABLE_HTTPS else 'http') ~ '://' ~ (RGG_HOST if ENABLE_HTTPS else 'localhost:9700') ~ '/gamma/badges/' }}"),
