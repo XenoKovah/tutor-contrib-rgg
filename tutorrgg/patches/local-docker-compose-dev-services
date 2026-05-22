@@ -8,11 +8,11 @@ rgg:
     {%- for mount in iter_mounts(MOUNTS, "rgg") %}
     - {{ mount }}
     {%- endfor %}
-  command: ./manage.py runserver 0.0.0.0:9700
+  command: ./manage.py runserver 0.0.0.0:8000
   stdin_open: true
   tty: true
   ports:
-    - "9700:9700"
+    - "9700:8000"
   networks:
     default:
       aliases:
