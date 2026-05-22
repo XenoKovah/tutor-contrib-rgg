@@ -7,6 +7,7 @@ from glob import glob
 import importlib_resources
 from tutor import hooks
 from tutor.config import load
+from tutormfe.hooks import PLUGIN_SLOTS
 
 from .__about__ import __version__
 
@@ -44,11 +45,13 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_BRIDGE_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/edx-gamma-bridge.git"),
         ("RGG_BRIDGE_REPOSITORY_VERSION", "v2.0.0"),
         ("RGG_DASHBOARD_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/edx-gamma-dashboard.git"),
-        ("RGG_DASHBOARD_REPOSITORY_VERSION", "v2.0.0"),
+		("RGG_DASHBOARD_REPOSITORY_VERSION", "v2.0.0"),
+        ("RGG_WIDGETS_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/frontend-rgg-widgets.git"),
+        ("RGG_WIDGETS_VERSION", "v1.0.0"),
         ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
         ("RGG_OAUTH2_KEY_SSO_DEV", "rgg-key-sso-dev"),
         ("RGG_GAMMA_SETTINGS_URL", "{{ ('https' if ENABLE_HTTPS else 'http') ~ '://' ~ (RGG_HOST if ENABLE_HTTPS else 'localhost:9700') ~ '/gamma/badges/' }}"),
-        ("RGG_DEFAULT_FILE_STORAGE_OPTIONS", {})
+        ("RGG_DEFAULT_FILE_STORAGE_OPTIONS", {}),
     ]
 )
 
@@ -83,7 +86,7 @@ def _extend_with_file_storage_settings(root: str) -> None:
 
     file_storage_backend = current_config.get("RGG_DEFAULT_FILE_STORAGE")
     file_storage_options = current_config.get("RGG_DEFAULT_FILE_STORAGE_OPTIONS") or {}
-    
+
     patch_settings_str = []
 
     # Override the DEFAULT_FILE_STORAGE setting.
@@ -94,9 +97,9 @@ def _extend_with_file_storage_settings(root: str) -> None:
     for key, value in file_storage_options.items():
         patch_settings_str.append(f"{key} = {repr(value)}")
 
-    # Inject into openedx-common-settings.
+    # Inject into rgg-common-settings.
     joined_settings_str = "\n".join(patch_settings_str)
-    hooks.Filters.ENV_PATCHES.add_items([("openedx-common-settings", joined_settings_str)])
+    hooks.Filters.ENV_PATCHES.add_items([("rgg-common-settings", joined_settings_str)])
 
 hooks.Filters.CONFIG_OVERRIDES.add_items(
     [
@@ -294,6 +297,109 @@ for path in glob(str(importlib_resources.files("tutorrgg") / "patches" / "*")):
     with open(path, encoding="utf-8") as patch_file:
         hooks.Filters.ENV_PATCHES.add_item((os.path.basename(path), patch_file.read()))
 
+########################################
+# PLUGIN SLOTS
+########################################
+
+RGG_WIDGETS_PKG = "@rgg-plugins/frontend-rgg-widgets@git+{{ RGG_WIDGETS_REPOSITORY }}#{{ RGG_WIDGETS_VERSION }}"
+RGG_WIDGET_IMPORT = "const { HeaderUserMenuItems, LearningHeaderUserMenuItems } = await import('@rgg-plugins/frontend-rgg-widgets');"
+
+# Note: added `learning` MFE in case when uses general header component (RG theme behavior)
+RGG_CORE_MFES = ["account", "communications", "discussions", "learner-dashboard", "profile", "learning"]
+
+RGG_HEADER_SECONDARY_MENU_SLOTS = {
+    **{mfe: [
+        "desktop_secondary_menu_slot", # frontend-component-header <= v6.3.0
+        "org.openedx.frontend.layout.header_desktop_secondary_menu.v1", # frontend-component-header >= v6.4.0
+    ] for mfe in RGG_CORE_MFES},
+}
+
+# Insert widget into Discussions, Communications, Learning MFEs when uses learning header component (default Open edX behavior)
+RGG_LEARNING_HEADER_SECONDARY_MENU_SLOTS = {
+    **{mfe: [
+        "learning_help_slot", # frontend-component-header <= v6.3.0
+        "org.openedx.frontend.layout.header_learning_help.v1", # frontend-component-header >= v6.4.0
+    ] for mfe in ["discussions", "communications", "learning"]}
+}
+
+RGG_HEADER_USER_MENU_SLOTS = {
+    **{mfe: [
+        "desktop_user_menu_slot", # frontend-component-header <= v6.3.0
+        "mobile_user_menu_slot", # frontend-component-header <= v6.3.0
+        "org.openedx.frontend.layout.header_desktop_user_menu.v1", # frontend-component-header >= v6.4.0
+        "org.openedx.frontend.layout.header_mobile_user_menu.v1", # frontend-component-header >= v6.4.0
+    ] for mfe in RGG_CORE_MFES},
+}
+
+# Insert widget into Discussions, Communications, Learning MFEs when uses learning header component (default Open edX behavior)
+RGG_LEARNING_HEADER_USER_MENU_SLOTS = {
+    **{mfe: [
+        "learning_user_menu_slot", # frontend-component-header <= v6.3.0
+        "org.openedx.frontend.layout.header_learning_user_menu.v1", # frontend-component-header >= v6.4.0
+    ] for mfe in ["discussions", "communications", "learning"]}
+}
+
+for mfe in RGG_CORE_MFES:
+    hooks.Filters.ENV_PATCHES.add_items([
+        (f"mfe-dockerfile-post-npm-install-{mfe}", f"RUN npm install {RGG_WIDGETS_PKG}"),
+        (f"mfe-env-config-runtime-definitions-{mfe}", RGG_WIDGET_IMPORT),
+    ])
+
+# Register plugin slot operations into each (mfe, slot) in `slot_map`.
+def register_widgets(
+    slot_map: dict[str, list[str]],
+    widget_id_prefix: str,
+    render_widget: str,
+    operation: str = "Insert",
+    priority: int = 1,
+    target_widget_id: str = "default_contents",
+) -> None:
+    for mfe, slots in slot_map.items():
+        for slot in slots:
+            widget_id = f"{widget_id_prefix}__{mfe}__{slot}"
+            if operation == "Insert":
+                plugin_config = f"""
+                {{
+                    op: PLUGIN_OPERATIONS.Insert,
+                    widget: {{
+                        id: '{widget_id}',
+                        priority: {priority},
+                        type: DIRECT_PLUGIN,
+                        RenderWidget: {render_widget},
+                    }},
+                }}"""
+            elif operation == "Modify":
+                plugin_config = f"""
+                {{
+                    op: PLUGIN_OPERATIONS.Modify,
+                    widgetId: '{target_widget_id}',
+                    fn: {render_widget},
+                }}"""
+            elif operation == "Wrap":
+                plugin_config = f"""
+                {{
+                    op: PLUGIN_OPERATIONS.Wrap,
+                    widgetId: '{target_widget_id}',
+                    wrapper: {render_widget},
+                }}"""
+            elif operation == "Hide":
+                plugin_config = f"""
+                {{
+                    op: PLUGIN_OPERATIONS.Hide,
+                    widgetId: '{target_widget_id}',
+                }}"""
+            else:
+                raise ValueError(f"Unsupported plugin slot operation: {operation!r}")
+
+            PLUGIN_SLOTS.add_items([(
+                mfe,
+                slot,
+                plugin_config,
+            )])
+
+
+register_widgets(RGG_HEADER_USER_MENU_SLOTS, "rgg_header_user_menu_items", "HeaderUserMenuItems", "Modify")
+register_widgets(RGG_LEARNING_HEADER_USER_MENU_SLOTS, "rgg_learning_header_user_menu_items", "LearningHeaderUserMenuItems", "Modify")
 
 ########################################
 # CUSTOM JOBS (a.k.a. "do-commands")
