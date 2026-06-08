@@ -5,7 +5,7 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
-* feat: Register the ProfileBadges widget on the Profile MFE (Earned Badges, under Social Links) and allow MFEs to call the gamma_dashboard API via CORS
+* feat: Add the ProfileBadges widget (Earned Badges, under Social Links) to the Profile MFE, building the profile MFE from the RGG fork that adds the additional-profile-fields plugin slot
 * chore: Update app and plugins versions to main
 * chore: [TEA-89] Update Python and Tutor versions for compatibility with Teak release
 * feat: [NAU-520] Pass GAMMA_SETTINGS_URL to CMS and MFE_CONFIG

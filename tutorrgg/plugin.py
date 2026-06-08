@@ -7,7 +7,7 @@ from glob import glob
 import importlib_resources
 from tutor import hooks
 from tutor.config import load
-from tutormfe.hooks import PLUGIN_SLOTS
+from tutormfe.hooks import MFE_APPS, MFE_ATTRS_TYPE, PLUGIN_SLOTS
 
 from .__about__ import __version__
 
@@ -407,6 +407,22 @@ RGG_PROFILE_BADGES_SLOTS = {
     "profile": ["org.openedx.frontend.profile.additional_profile_fields.v1"],
 }
 register_widgets(RGG_PROFILE_BADGES_SLOTS, "rgg_profile_badges", "ProfileBadges", "Insert")
+
+# The Teak profile MFE tag pinned by tutor-mfe (release/teak.x) predates the
+# `additional_profile_fields` plugin slot that the ProfileBadges widget mounts into.
+# Build the profile MFE from the RGG fork, which backports just that slot onto the
+# deployed release/teak.3 base, so the Earned Badges section renders.
+RGG_PROFILE_MFE_REPOSITORY = "https://github.com/XenoKovah/frontend-app-profile.git"
+RGG_PROFILE_MFE_VERSION = "profile-earned-badges"
+
+
+@MFE_APPS.add()
+def _rgg_override_profile_mfe(apps: dict[str, MFE_ATTRS_TYPE]) -> dict[str, MFE_ATTRS_TYPE]:
+    """Build the profile MFE from the RGG fork that adds the additional-profile-fields slot."""
+    if "profile" in apps:
+        apps["profile"]["repository"] = RGG_PROFILE_MFE_REPOSITORY
+        apps["profile"]["version"] = RGG_PROFILE_MFE_VERSION
+    return apps
 
 ########################################
 # CUSTOM JOBS (a.k.a. "do-commands")
