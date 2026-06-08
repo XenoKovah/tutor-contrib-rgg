@@ -1,0 +1,5 @@
+# Allow MFEs (e.g. the Profile MFE) to call the gamma_dashboard API cross-origin.
+# CORS_URLS_REGEX defaults to r"^/api/.*$"; extend it to also cover the gamma_dashboard API,
+# which the profile "Earned Badges" widget fetches from apps.<host>. The MFE host is already
+# in CORS_ORIGIN_WHITELIST (added by tutor-mfe) and CORS_ALLOW_CREDENTIALS is enabled.
+CORS_URLS_REGEX = r"^/(api|gamma_dashboard/api)/.*$"

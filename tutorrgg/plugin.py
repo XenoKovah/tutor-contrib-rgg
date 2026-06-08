@@ -302,7 +302,7 @@ for path in glob(str(importlib_resources.files("tutorrgg") / "patches" / "*")):
 ########################################
 
 RGG_WIDGETS_PKG = "@rgg-plugins/frontend-rgg-widgets@git+{{ RGG_WIDGETS_REPOSITORY }}#{{ RGG_WIDGETS_VERSION }}"
-RGG_WIDGET_IMPORT = "const { HeaderUserMenuItems, LearningHeaderUserMenuItems } = await import('@rgg-plugins/frontend-rgg-widgets');"
+RGG_WIDGET_IMPORT = "const { HeaderUserMenuItems, LearningHeaderUserMenuItems, ProfileBadges } = await import('@rgg-plugins/frontend-rgg-widgets');"
 
 # Note: added `learning` MFE in case when uses general header component (RG theme behavior)
 RGG_CORE_MFES = ["account", "communications", "discussions", "learner-dashboard", "profile", "learning"]
@@ -400,6 +400,13 @@ def register_widgets(
 
 register_widgets(RGG_HEADER_USER_MENU_SLOTS, "rgg_header_user_menu_items", "HeaderUserMenuItems", "Modify")
 register_widgets(RGG_LEARNING_HEADER_USER_MENU_SLOTS, "rgg_learning_header_user_menu_items", "LearningHeaderUserMenuItems", "Modify")
+
+# Insert the "Earned Badges" widget into the Profile MFE. The additional-profile-fields
+# slot renders directly below the "Social Links" section in the profile's left column.
+RGG_PROFILE_BADGES_SLOTS = {
+    "profile": ["org.openedx.frontend.profile.additional_profile_fields.v1"],
+}
+register_widgets(RGG_PROFILE_BADGES_SLOTS, "rgg_profile_badges", "ProfileBadges", "Insert")
 
 ########################################
 # CUSTOM JOBS (a.k.a. "do-commands")
