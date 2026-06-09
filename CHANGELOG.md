@@ -5,6 +5,7 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+* feat: Hide the "Order History" item from the header user menu by forcing MFE_CONFIG["ORDER_HISTORY_URL"] = "" (frontend-component-header only renders it when that value is truthy)
 * feat: Add the ProfileBadges widget (Earned Badges, under Social Links) to the Profile MFE, building the profile MFE from the RGG fork that adds the additional-profile-fields plugin slot
 * chore: Update app and plugins versions to main
 * chore: [TEA-89] Update Python and Tutor versions for compatibility with Teak release

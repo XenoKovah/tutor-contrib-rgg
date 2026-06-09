@@ -1,1 +1,6 @@
 MFE_CONFIG["GAMMA_SETTINGS_URL"] = "{{ RGG_GAMMA_SETTINGS_URL }}"
+
+# Hide the "Order History" item from the header user-menu (no e-commerce on this deployment).
+# frontend-component-header only renders Order History when ORDER_HISTORY_URL is truthy;
+# forcing it empty in the runtime MFE_CONFIG removes the item.
+MFE_CONFIG["ORDER_HISTORY_URL"] = ""
