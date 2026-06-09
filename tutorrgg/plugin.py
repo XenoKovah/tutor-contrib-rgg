@@ -410,10 +410,13 @@ register_widgets(RGG_PROFILE_BADGES_SLOTS, "rgg_profile_badges", "ProfileBadges"
 
 # The Teak profile MFE tag pinned by tutor-mfe (release/teak.x) predates the
 # `additional_profile_fields` plugin slot that the ProfileBadges widget mounts into.
-# Build the profile MFE from the RGG fork, which backports just that slot onto the
-# deployed release/teak.3 base, so the Earned Badges section renders.
+# Build the profile MFE from the RGG fork, which backports that slot onto the
+# deployed release/teak.3 base (so the Earned Badges section renders) and also
+# carries the updated Social Links options (X/Twitter dual host, GitHub, GitLab,
+# Bluesky, Discord, Blog; Facebook removed). `update-profile-social-options` is
+# branched off `profile-earned-badges`, so it includes the Earned Badges work too.
 RGG_PROFILE_MFE_REPOSITORY = "https://github.com/XenoKovah/frontend-app-profile.git"
-RGG_PROFILE_MFE_VERSION = "profile-earned-badges"
+RGG_PROFILE_MFE_VERSION = "update-profile-social-options"
 
 
 @MFE_APPS.add()
