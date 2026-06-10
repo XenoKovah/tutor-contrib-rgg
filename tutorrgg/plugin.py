@@ -302,7 +302,7 @@ for path in glob(str(importlib_resources.files("tutorrgg") / "patches" / "*")):
 ########################################
 
 RGG_WIDGETS_PKG = "@rgg-plugins/frontend-rgg-widgets@git+{{ RGG_WIDGETS_REPOSITORY }}#{{ RGG_WIDGETS_VERSION }}"
-RGG_WIDGET_IMPORT = "const { HeaderUserMenuItems, LearningHeaderUserMenuItems, ProfileBadges } = await import('@rgg-plugins/frontend-rgg-widgets');"
+RGG_WIDGET_IMPORT = "const { BadgeNotifications, BadgeNotificationsToggle, HeaderUserMenuItems, LearningHeaderUserMenuItems, ProfileBadges } = await import('@rgg-plugins/frontend-rgg-widgets');"
 
 # Note: added `learning` MFE in case when uses general header component (RG theme behavior)
 RGG_CORE_MFES = ["account", "communications", "discussions", "learner-dashboard", "profile", "learning"]
@@ -408,6 +408,26 @@ RGG_PROFILE_BADGES_SLOTS = {
 }
 register_widgets(RGG_PROFILE_BADGES_SLOTS, "rgg_profile_badges", "ProfileBadges", "Insert")
 
+# Mount the "badge earned" toast on every RGG-enabled MFE page. The widget renders
+# nothing until the learner has a pending notification, so inserting it alongside the
+# default footer content is invisible. Both footer slot ids are registered, mirroring
+# the header registrations above; the frontend-plugin-framework resolves a slot's
+# aliases last-match-wins (findLast), so only one copy ever mounts.
+RGG_BADGE_NOTIFICATIONS_SLOTS = {
+    **{mfe: [
+        "footer_slot", # frontend-component-footer <= v13
+        "org.openedx.frontend.layout.footer.v1", # frontend-component-footer >= v14
+    ] for mfe in RGG_CORE_MFES},
+}
+register_widgets(RGG_BADGE_NOTIFICATIONS_SLOTS, "rgg_badge_notifications", "BadgeNotifications", "Insert")
+
+# The "Gamification" preferences section (badge pop-up on/off switch) on the Account
+# Settings page, between "Notifications" and "Site preferences".
+RGG_ACCOUNT_SETTINGS_SLOTS = {
+    "account": ["org.ost2.frontend.account.additional_settings_sections.v1"],
+}
+register_widgets(RGG_ACCOUNT_SETTINGS_SLOTS, "rgg_gamification_settings", "BadgeNotificationsToggle", "Insert")
+
 # The Teak profile MFE tag pinned by tutor-mfe (release/teak.x) predates the
 # `additional_profile_fields` plugin slot that the ProfileBadges widget mounts into.
 # Build the profile MFE from the RGG fork, which backports just that slot onto the
@@ -422,6 +442,22 @@ def _rgg_override_profile_mfe(apps: dict[str, MFE_ATTRS_TYPE]) -> dict[str, MFE_
     if "profile" in apps:
         apps["profile"]["repository"] = RGG_PROFILE_MFE_REPOSITORY
         apps["profile"]["version"] = RGG_PROFILE_MFE_VERSION
+    return apps
+
+
+# Stock release/teak.x frontend-app-account has no slot inside the settings page, so —
+# same approach as the profile MFE above — build it from the OST2 fork, which adds just
+# the additional-settings-sections slot that the gamification preferences mount into.
+RGG_ACCOUNT_MFE_REPOSITORY = "https://github.com/XenoKovah/frontend-app-account.git"
+RGG_ACCOUNT_MFE_VERSION = "badge-notification"
+
+
+@MFE_APPS.add()
+def _rgg_override_account_mfe(apps: dict[str, MFE_ATTRS_TYPE]) -> dict[str, MFE_ATTRS_TYPE]:
+    """Build the account MFE from the OST2 fork that adds the additional-settings-sections slot."""
+    if "account" in apps:
+        apps["account"]["repository"] = RGG_ACCOUNT_MFE_REPOSITORY
+        apps["account"]["version"] = RGG_ACCOUNT_MFE_VERSION
     return apps
 
 ########################################
