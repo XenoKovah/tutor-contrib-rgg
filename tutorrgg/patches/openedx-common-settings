@@ -8,27 +8,25 @@ EDX_API_KEY = "{{ EDX_API_KEY }}"
 # hard-codes the allowed platform list, and accounts/utils.py assumes exactly one
 # host per platform with no free-form URLs. We define the platform set here and
 # re-implement the few functions that ignore it, so the platform list, the
-# X/Twitter dual host, the host_prefix tweak, and the free-form "blog" type work
-# without forking edx-platform.
+# X/Twitter dual host, the host_prefix tweak, and the free-form types ("blog",
+# "mastodon") work without forking edx-platform.
 #
 # Because the serializer cannot be imported at settings-import time (the Django
 # app registry is not ready yet), the monkeypatch is applied lazily on the first
 # request via the request_started signal. Social-link validation is only reached
 # through the HTTP account API, so request-time application is sufficient.
 #
-# Security note: free-form ("blog") URLs are stored as the user typed them (there
+# Security note: free-form ("blog", "mastodon") URLs are stored as the user typed them (there
 # is no canonical host to rebuild from), so they are strictly validated -- control
 # and whitespace chars are stripped (to defeat scheme smuggling such as a tab
 # inside "javascript:") and only http/https is accepted. Stub platforms stay safe
 # because their stored URL is always rebuilt from a known host.
 # ===========================================================================
 SOCIAL_PLATFORMS = {
-    "twitter": {
-        "display_name": "X (Twitter)",
-        "url_stub": "x.com/",
-        "alt_url_stubs": ["twitter.com/"],
-        "host_prefix": "",
-        "example": "https://x.com/username",
+    "blog": {
+        "display_name": "Blog",
+        "url_type": "free",
+        "example": "https://example.com/",
     },
     "linkedin": {
         "display_name": "LinkedIn",
@@ -47,22 +45,29 @@ SOCIAL_PLATFORMS = {
         "host_prefix": "",
         "example": "https://gitlab.com/username",
     },
+    "mastodon": {
+        "display_name": "Mastodon",
+        "url_type": "free",
+        "example": "https://infosec.exchange/@username",
+    },
     "bluesky": {
         "display_name": "Bluesky",
         "url_stub": "bsky.app/profile/",
         "host_prefix": "",
         "example": "https://bsky.app/profile/username.bsky.social",
     },
+    "twitter": {
+        "display_name": "X (Twitter)",
+        "url_stub": "x.com/",
+        "alt_url_stubs": ["twitter.com/"],
+        "host_prefix": "",
+        "example": "https://x.com/username",
+    },
     "discord": {
         "display_name": "Discord",
         "url_stub": "discord.com/users/",
         "host_prefix": "",
         "example": "https://discord.com/users/000000000000000000",
-    },
-    "blog": {
-        "display_name": "Blog",
-        "url_type": "free",
-        "example": "https://example.com/",
     },
 }
 
