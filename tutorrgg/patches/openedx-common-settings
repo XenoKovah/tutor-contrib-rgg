@@ -1,1 +1,194 @@
 EDX_API_KEY = "{{ EDX_API_KEY }}"
+
+
+# ===========================================================================
+# RGG: configurable, multi-host, and free-form social profile links
+# ---------------------------------------------------------------------------
+# Upstream edx-platform only partially honors SOCIAL_PLATFORMS: SocialLinkSerializer
+# hard-codes the allowed platform list, and accounts/utils.py assumes exactly one
+# host per platform with no free-form URLs. We define the platform set here and
+# re-implement the few functions that ignore it, so the platform list, the
+# X/Twitter dual host, the host_prefix tweak, and the free-form types ("blog",
+# "mastodon") work without forking edx-platform.
+#
+# Because the serializer cannot be imported at settings-import time (the Django
+# app registry is not ready yet), the monkeypatch is applied lazily on the first
+# request via the request_started signal. Social-link validation is only reached
+# through the HTTP account API, so request-time application is sufficient.
+#
+# Security note: free-form ("blog", "mastodon") URLs are stored as the user typed them (there
+# is no canonical host to rebuild from), so they are strictly validated -- control
+# and whitespace chars are stripped (to defeat scheme smuggling such as a tab
+# inside "javascript:") and only http/https is accepted. Stub platforms stay safe
+# because their stored URL is always rebuilt from a known host.
+# ===========================================================================
+SOCIAL_PLATFORMS = {
+    "blog": {
+        "display_name": "Blog",
+        "url_type": "free",
+        "example": "https://example.com/",
+    },
+    "linkedin": {
+        "display_name": "LinkedIn",
+        "url_stub": "linkedin.com/in/",
+        "example": "https://www.linkedin.com/in/username",
+    },
+    "github": {
+        "display_name": "GitHub",
+        "url_stub": "github.com/",
+        "host_prefix": "",
+        "example": "https://github.com/username",
+    },
+    "gitlab": {
+        "display_name": "GitLab",
+        "url_stub": "gitlab.com/",
+        "host_prefix": "",
+        "example": "https://gitlab.com/username",
+    },
+    "mastodon": {
+        "display_name": "Mastodon",
+        "url_type": "free",
+        "example": "https://infosec.exchange/@username",
+    },
+    "bluesky": {
+        "display_name": "Bluesky",
+        "url_stub": "bsky.app/profile/",
+        "host_prefix": "",
+        "example": "https://bsky.app/profile/username.bsky.social",
+    },
+    "twitter": {
+        "display_name": "X (Twitter)",
+        "url_stub": "x.com/",
+        "alt_url_stubs": ["twitter.com/"],
+        "host_prefix": "",
+        "example": "https://x.com/username",
+    },
+    "discord": {
+        "display_name": "Discord",
+        "url_stub": "discord.com/users/",
+        "host_prefix": "",
+        "example": "https://discord.com/users/000000000000000000",
+    },
+}
+
+
+def _rgg_social_cfg(platform_name):
+    from django.conf import settings
+    return settings.SOCIAL_PLATFORMS.get(platform_name, {})
+
+
+def _rgg_social_is_freeform(platform_name):
+    return _rgg_social_cfg(platform_name).get("url_type") == "free"
+
+
+def _rgg_social_strip_ctrl(value):
+    import re
+    return re.sub(r"[\x00-\x20\x7f]+", "", value or "")
+
+
+def _rgg_social_sanitize_freeform(new_social_link):
+    from urllib.parse import urlparse
+    candidate = _rgg_social_strip_ctrl(new_social_link)
+    if not candidate:
+        return None
+    try:
+        parsed = urlparse(candidate)
+    except ValueError:
+        return None
+    if parsed.scheme.lower() not in ("http", "https"):
+        return None
+    if not parsed.netloc:
+        return None
+    return parsed.geturl()
+
+
+def _rgg_social_get_username(platform_name, new_social_link):
+    import re
+    from urllib.parse import urlparse
+    if not new_social_link:
+        return new_social_link
+    parse_result = urlparse(new_social_link)
+    url_domain_and_path = parse_result[1] + parse_result[2]
+    cfg = _rgg_social_cfg(platform_name)
+    accepted_stubs = [cfg.get("url_stub", "")] + list(cfg.get("alt_url_stubs", []))
+    username = new_social_link
+    for stub in accepted_stubs:
+        if not stub:
+            continue
+        match = re.search(
+            r"(www\.)?" + re.escape(stub) + r"(?P<username>.*?)[/]?$",
+            url_domain_and_path,
+            re.IGNORECASE,
+        )
+        if match:
+            username = match.group("username")
+            break
+    if "/" in username:
+        return None
+    return username
+
+
+def _rgg_social_format_link(platform_name, new_social_link):
+    if not new_social_link:
+        return new_social_link
+    if _rgg_social_is_freeform(platform_name):
+        return _rgg_social_sanitize_freeform(new_social_link)
+    username = _rgg_social_get_username(platform_name, new_social_link)
+    if not username:
+        return None
+    cfg = _rgg_social_cfg(platform_name)
+    host_prefix = cfg.get("host_prefix", "www.")
+    return "https://{}{}{}".format(host_prefix, cfg["url_stub"], username)
+
+
+def _rgg_social_validate_link(platform_name, new_social_link):
+    from django.conf import settings
+    from django.utils.translation import gettext as _
+    if _rgg_social_format_link(platform_name, new_social_link) is not None:
+        return
+    if _rgg_social_is_freeform(platform_name):
+        example = _rgg_social_cfg(platform_name).get("example", "https://example.com/")
+        raise ValueError(_(
+            'Make sure that you are providing a valid http(s) URL (for example, "{example}"). '
+            'To remove the link, leave this field blank.'
+        ).format(example=example))
+    required_url_stub = _rgg_social_cfg(platform_name).get("url_stub", "")
+    raise ValueError(_(
+        'Make sure that you are providing a valid username or a URL that contains "{url_stub}". '
+        'To remove the link from your {platform_name} profile, leave this field blank.'
+    ).format(url_stub=required_url_stub, platform_name=settings.PLATFORM_NAME))
+
+
+def _rgg_social_validate_platform(self, platform):
+    from django.conf import settings
+    from rest_framework import serializers as drf_serializers
+    if platform not in settings.SOCIAL_PLATFORMS:
+        raise drf_serializers.ValidationError(
+            "The social platform must be one of: {}".format(", ".join(settings.SOCIAL_PLATFORMS))
+        )
+    return platform
+
+
+def _rgg_apply_social_link_patches(*_args, **_kwargs):
+    if getattr(_rgg_apply_social_link_patches, "_applied", False):
+        return
+    try:
+        from openedx.core.djangoapps.user_api.accounts import serializers as accounts_serializers
+        from openedx.core.djangoapps.user_api.accounts import utils as accounts_utils
+    except Exception:  # noqa: BLE001 -- app registry not ready / unexpected import error
+        return
+    accounts_utils.validate_social_link = _rgg_social_validate_link
+    accounts_utils.format_social_link = _rgg_social_format_link
+    accounts_utils._get_username_from_social_link = _rgg_social_get_username
+    accounts_serializers.validate_social_link = _rgg_social_validate_link
+    accounts_serializers.format_social_link = _rgg_social_format_link
+    accounts_serializers.SocialLinkSerializer.validate_platform = _rgg_social_validate_platform
+    _rgg_apply_social_link_patches._applied = True
+
+
+from django.core.signals import request_started as _rgg_request_started  # noqa: E402
+_rgg_request_started.connect(
+    _rgg_apply_social_link_patches,
+    dispatch_uid="rgg_social_link_patch",
+    weak=False,
+)
