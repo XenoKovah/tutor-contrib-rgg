@@ -4,3 +4,11 @@ MFE_CONFIG["GAMMA_SETTINGS_URL"] = "{{ RGG_GAMMA_SETTINGS_URL }}"
 # frontend-component-header only renders Order History when ORDER_HISTORY_URL is truthy;
 # forcing it empty in the runtime MFE_CONFIG removes the item.
 MFE_CONFIG["ORDER_HISTORY_URL"] = ""
+
+# Master switch for the student gamification UI in the MFE header dropdown. Default False
+# (hidden); the RGG header widgets show the "Your Accomplishments"/"Leaderboard" links only
+# when this is true OR the user is staff/admin. Flip via the RGG_STUDENT_UI_VISIBLE tutor
+# setting (`tutor config save` + LMS restart; no image rebuild). Server-side surfaces use
+# the rgg.show_student_ui Waffle flag instead. The Jinja guard always emits a valid Python
+# bool, even if the setting is given as a string.
+MFE_CONFIG["RGG_STUDENT_UI_VISIBLE"] = {{ "True" if RGG_STUDENT_UI_VISIBLE else "False" }}

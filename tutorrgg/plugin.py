@@ -52,6 +52,14 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_OAUTH2_KEY_SSO_DEV", "rgg-key-sso-dev"),
         ("RGG_GAMMA_SETTINGS_URL", "{{ ('https' if ENABLE_HTTPS else 'http') ~ '://' ~ (RGG_HOST if ENABLE_HTTPS else 'localhost:9700') ~ '/gamma/badges/' }}"),
         ("RGG_DEFAULT_FILE_STORAGE_OPTIONS", {}),
+        # Master switch for the student-facing gamification UI in the MFE header dropdown,
+        # delivered to MFEs via MFE_CONFIG (the header widgets read
+        # getConfig().RGG_STUDENT_UI_VISIBLE). Default False = hidden from learners; staff
+        # still see the links via the client-side admin check. Flip to True + `tutor config
+        # save` + restart LMS to reveal to learners (no image rebuild). Server-side surfaces
+        # (profile, dashboard/leaderboard pages, legacy Mako header) use the
+        # rgg.show_student_ui Waffle flag in /admin/waffle/flag/ instead.
+        ("RGG_STUDENT_UI_VISIBLE", False),
     ]
 )
 
