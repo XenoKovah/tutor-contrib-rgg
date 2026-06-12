@@ -45,7 +45,7 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_BRIDGE_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/edx-gamma-bridge.git"),
         ("RGG_BRIDGE_REPOSITORY_VERSION", "main"),
         ("RGG_DASHBOARD_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/edx-gamma-dashboard.git"),
-        ("RGG_DASHBOARD_REPOSITORY_VERSION", "main"),
+        ("RGG_DASHBOARD_REPOSITORY_VERSION", "8a6a4375b26375b5dd5849a165032f2664cc8d94"),
         ("RGG_WIDGETS_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/frontend-rgg-widgets.git"),
         ("RGG_WIDGETS_VERSION", "main"),
         ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
@@ -444,7 +444,7 @@ register_widgets(RGG_ACCOUNT_SETTINGS_SLOTS, "rgg_gamification_settings", "Badge
 # Bluesky, Discord, Blog; Facebook removed). `update-profile-social-options` is
 # branched off `profile-earned-badges`, so it includes the Earned Badges work too.
 RGG_PROFILE_MFE_REPOSITORY = "https://github.com/XenoKovah/frontend-app-profile.git"
-RGG_PROFILE_MFE_VERSION = "update-profile-social-options"
+RGG_PROFILE_MFE_VERSION = "teak3_5_readonly-public-profile"
 
 
 @MFE_APPS.add()
@@ -460,7 +460,7 @@ def _rgg_override_profile_mfe(apps: dict[str, MFE_ATTRS_TYPE]) -> dict[str, MFE_
 # same approach as the profile MFE above — build it from the OST2 fork, which adds just
 # the additional-settings-sections slot that the gamification preferences mount into.
 RGG_ACCOUNT_MFE_REPOSITORY = "https://github.com/XenoKovah/frontend-app-account.git"
-RGG_ACCOUNT_MFE_VERSION = "badge-notification"
+RGG_ACCOUNT_MFE_VERSION = "teak3_1_profile-editing-and-visibility"
 
 
 @MFE_APPS.add()
