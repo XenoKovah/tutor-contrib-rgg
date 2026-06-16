@@ -38,6 +38,11 @@ DATABASES = {
         "HOST": "{{ MYSQL_HOST }}",
         "PORT": "{{ MYSQL_PORT }}",
         "OPTIONS": {
+            # Negotiate the connection in utf8mb4 to match the (already utf8mb4) tables,
+            # so any RGG text field can store full 4-byte unicode / emojis. Without this
+            # the client defaults to utf8mb3 and a 4-byte char (e.g. an emoji in a badge
+            # description) is rejected with "Incorrect string value".
+            "charset": "utf8mb4",
         },
     }
 }
