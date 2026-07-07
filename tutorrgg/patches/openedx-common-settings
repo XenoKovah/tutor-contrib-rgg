@@ -2,6 +2,19 @@ EDX_API_KEY = "{{ EDX_API_KEY }}"
 
 
 # ===========================================================================
+# RGG: allow the standalone gamma admin to call the LMS accounts API cross-origin
+# ---------------------------------------------------------------------------
+# The gamma admin is served from its own origin (RGG_HOST = gamma.<LMS_HOST>).
+# The manual badge-assign dialog resolves an entered email to a username by
+# calling the staff-only LMS accounts API from the browser, which is a
+# cross-origin, credentialed request. CORS_ALLOW_CREDENTIALS is already enabled;
+# this adds the gamma origin to the whitelist so that call isn't blocked. Placed
+# in openedx-common-settings (renders after production.py resets the list to []).
+# ===========================================================================
+CORS_ORIGIN_WHITELIST.append("{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ RGG_HOST }}")
+
+
+# ===========================================================================
 # RGG: configurable, multi-host, and free-form social profile links
 # ---------------------------------------------------------------------------
 # Upstream edx-platform only partially honors SOCIAL_PLATFORMS: SocialLinkSerializer
