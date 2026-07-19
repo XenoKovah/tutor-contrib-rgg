@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import os
 import typing as t
 from glob import glob
@@ -470,6 +471,70 @@ def _rgg_override_account_mfe(apps: dict[str, MFE_ATTRS_TYPE]) -> dict[str, MFE_
         apps["account"]["repository"] = RGG_ACCOUNT_MFE_REPOSITORY
         apps["account"]["version"] = RGG_ACCOUNT_MFE_VERSION
     return apps
+
+
+# Studio (authoring MFE) user menu: add the same admin-only "Gamification
+# Settings" link the RGG header widgets contribute in the learner-facing MFEs.
+# The StudioHeader user dropdown (Studio Home / Maintenance / Logout) is
+# hard-coded in @edx/frontend-component-header's getUserMenuItems (no plugin
+# slot as of v6.4.x), so the authoring MFE can't mount HeaderUserMenuItems;
+# instead patch the package's compiled dist right after `npm clean-install`.
+# The link is gated on the same `administrator` flag that already gates the
+# "Maintenance" item there (and Gamification Settings everywhere else), and on
+# GAMMA_SETTINGS_URL, which reaches the MFE at runtime via the MFE config API
+# (see the mfe-lms-common-settings patch). The node script is idempotent and
+# exits non-zero (failing the image build loudly) if the header package
+# restructures. Base64-embedded on a single RUN line so the JS quoting
+# survives the Dockerfile shell.
+_STUDIO_USER_MENU_GAMMA_NODE = r"""
+const fs = require('fs');
+const PATH = 'node_modules/@edx/frontend-component-header/dist/studio-header/utils.js';
+
+const MARKER = 'Gamification Settings';
+// The sole `return items;` in getUserMenuItems; `isAdmin` (destructured arg)
+// and `getConfig` (imported at the top of utils.js) are both in scope there.
+const ANCHOR = 'return items;';
+const REPLACEMENT =
+  'if (isAdmin && getConfig().GAMMA_SETTINGS_URL) {\n' +
+  '    items.splice(2, 0, {\n' +
+  '      href: getConfig().GAMMA_SETTINGS_URL,\n' +
+  "      title: 'Gamification Settings'\n" +
+  '    });\n' +
+  '  }\n' +
+  '  return items;';
+
+let src = fs.readFileSync(PATH, 'utf8');
+
+if (src.indexOf(MARKER) !== -1) {
+  console.log('tutorrgg studio user menu: Gamification Settings already present; skipping');
+  process.exit(0);
+}
+
+const n = src.split(ANCHOR).length - 1;
+if (n !== 1) {
+  console.error(
+    'tutorrgg studio user menu FATAL: expected exactly 1 occurrence of "' + ANCHOR +
+    '" in ' + PATH + ', found ' + n +
+    '. @edx/frontend-component-header restructured studio-header; re-anchor or drop this patch.');
+  process.exit(1);
+}
+
+src = src.split(ANCHOR).join(REPLACEMENT);
+fs.writeFileSync(PATH, src);
+console.log('tutorrgg studio user menu: added admin-only Gamification Settings item');
+"""
+
+_STUDIO_USER_MENU_GAMMA_B64 = base64.b64encode(
+    _STUDIO_USER_MENU_GAMMA_NODE.encode("utf-8")
+).decode("ascii")
+
+hooks.Filters.ENV_PATCHES.add_item(
+    (
+        "mfe-dockerfile-post-npm-install-authoring",
+        "# RGG: admin-only Gamification Settings item in the Studio user menu\n"
+        "RUN echo " + _STUDIO_USER_MENU_GAMMA_B64 + " | base64 -d | node -\n",
+    )
+)
 
 ########################################
 # CUSTOM JOBS (a.k.a. "do-commands")
