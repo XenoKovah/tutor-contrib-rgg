@@ -46,7 +46,7 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("RGG_BRIDGE_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/edx-gamma-bridge.git"),
         ("RGG_BRIDGE_REPOSITORY_VERSION", "main"),
         ("RGG_DASHBOARD_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/edx-gamma-dashboard.git"),
-        ("RGG_DASHBOARD_REPOSITORY_VERSION", "8a6a4375b26375b5dd5849a165032f2664cc8d94"),
+        ("RGG_DASHBOARD_REPOSITORY_VERSION", "d18e47d38a5b4ef4702460862a8b408e56e4231b"),
         ("RGG_WIDGETS_REPOSITORY", "https://gitlab.raccoongang.com/foss/rgg/frontend-rgg-widgets.git"),
         ("RGG_WIDGETS_VERSION", "main"),
         ("RGG_OAUTH2_KEY_SSO", "rgg-key-sso"),
