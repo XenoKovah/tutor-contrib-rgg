@@ -4,5 +4,17 @@
         max_size 10MB
     }
 
+    # Badge art is immutable-by-convention: new artwork is uploaded under a new
+    # filename (Badge__Instructor_v2.png -> _v3.png), and Django's storage renames
+    # rather than overwrites on a collision. Without an explicit lifetime these
+    # replies carried only Last-Modified, leaving browsers to guess heuristically
+    # and revalidate ~250 icons on every leaderboard view.
+    #
+    # 30 days rather than a year with `immutable`: long enough that repeat views
+    # cost nothing, short enough that art replaced in place still corrects itself
+    # without anyone having to think about cache busting.
+    @badge_media path /media/uploads/badges/*
+    header @badge_media Cache-Control "public, max-age=2592000"
+
     import proxy "rgg:8000"
 }
