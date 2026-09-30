@@ -445,7 +445,7 @@ register_widgets(RGG_ACCOUNT_SETTINGS_SLOTS, "rgg_gamification_settings", "Badge
 # Bluesky, Discord, Blog; Facebook removed). `update-profile-social-options` is
 # branched off `profile-earned-badges`, so it includes the Earned Badges work too.
 RGG_PROFILE_MFE_REPOSITORY = "https://github.com/XenoKovah/frontend-app-profile.git"
-RGG_PROFILE_MFE_VERSION = "teak3_5_readonly-public-profile"
+RGG_PROFILE_MFE_VERSION = "teak3_6_report-inappropriate-content"
 
 
 @MFE_APPS.add()
