@@ -29,6 +29,10 @@ DEFAULT_FILE_STORAGE_OPTIONS = {{ RGG_DEFAULT_FILE_STORAGE_OPTIONS }}
 # hardcoded for gammification dashboard and leaderboard to properly use the media urls
 STORE_RELATIVE_URLS = False
 
+# Per-install key from config.yml (RGG_SECRET_KEY). Without it gamma falls back to
+# the default in gamma/settings/base.py, which is public in the gamma repository.
+SECRET_KEY = "{{ RGG_SECRET_KEY }}"
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",

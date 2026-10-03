@@ -76,8 +76,9 @@ hooks.Filters.CONFIG_UNIQUE.add_items(
         # For instance: passwords, secret keys, etc.
         # Each new setting is a pair: (setting_name, unique_generated_value).
         # Prefix your setting names with 'RGG_'.
-        # For example:
-        ### ("RGG_SECRET_KEY", "{{ 24|random_string }}"),
+        # Gamma's Django SECRET_KEY. Without it gamma uses the public default in
+        # gamma/settings/base.py. 50 characters is what `manage.py check --deploy` wants.
+        ("RGG_SECRET_KEY", "{{ 50|random_string }}"),
         ("RGG_MYSQL_USERNAME", "rgg"),
         ("RGG_MYSQL_PASSWORD", "{{ 24|random_string }}"),
         ("RGG_DEFAULT_APP_KEY", "{{ 24|random_string }}"),
