@@ -462,7 +462,7 @@ def _rgg_override_profile_mfe(apps: dict[str, MFE_ATTRS_TYPE]) -> dict[str, MFE_
 # same approach as the profile MFE above — build it from the OST2 fork, which adds just
 # the additional-settings-sections slot that the gamification preferences mount into.
 RGG_ACCOUNT_MFE_REPOSITORY = "https://github.com/XenoKovah/frontend-app-account.git"
-RGG_ACCOUNT_MFE_VERSION = "teak3_1_profile-editing-and-visibility"
+RGG_ACCOUNT_MFE_VERSION = "teak3_2_email-preferences"
 
 
 @MFE_APPS.add()
